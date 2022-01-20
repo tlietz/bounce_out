@@ -1,0 +1,21 @@
+# Slideball
+
+[insert gif of demo here]
+
+A multiplayer, turn-based demo that showcases how a Javascript client and an Elixir server can share code.
+The code that simulates the physics of the sliding balls is written
+in Rust and is shared between the client and server.
+
+This can be helpful when creating web games because it saves the time of having to rewrite the simulation code in two different languages.
+Additionally, there is consistency between the client and server calculations.
+
+The client and server communicate with websockets. A Postgres database is used to
+save the color of ball that an authorized user selects. Whenever that player signs in again, their ball will start as the color of their choice.
+
+## TODO
+
+- [ ] Javascript client
+- [ ] Elixir server
+- [ ] Add CI/CL pipelines
+- [ ] Database
+- [ ] md book
