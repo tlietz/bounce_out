@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "matter-js": "^0.18.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.7.0"
   }
 }
