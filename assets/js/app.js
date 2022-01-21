@@ -27,22 +27,22 @@ import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 
 let csrfToken = document
-  .querySelector("meta[name='csrf-token']")
-  .getAttribute("content");
+    .querySelector("meta[name='csrf-token']")
+    .getAttribute("content");
 let liveSocket = new LiveSocket("/live", Socket, {
-  params: { _csrf_token: csrfToken },
+    params: { _csrf_token: csrfToken },
 });
 
 // Show progress bar on live navigation and form submits
 topbar.config({
-  barColors: { 0: "#29d" },
-  shadowColor: "rgba(0, 0, 0, .3)",
+    barColors: { 0: "#29d" },
+    shadowColor: "rgba(0, 0, 0, .3)",
 });
 window.addEventListener("phx:page-loading-start", () =>
-  topbar.show()
+    topbar.show(),
 );
 window.addEventListener("phx:page-loading-stop", () =>
-  topbar.hide()
+    topbar.hide(),
 );
 
 // connect if there are any LiveViews on the page
