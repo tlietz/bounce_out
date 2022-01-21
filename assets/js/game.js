@@ -13,7 +13,9 @@ var Engine = Matter.Engine,
     Composite = Matter.Composite,
     MouseConstraint = Matter.MouseConstraint,
     Mouse = Matter.Mouse,
-    Bodies = Matter.Bodies;
+    Body = Matter.Body,
+    Bodies = Matter.Bodies,
+    Events = Matter.Events;
 
 export function startGame() {
     // create an engine with no gravity
@@ -49,12 +51,21 @@ export function startGame() {
         mouseConstraint = MouseConstraint.create(engine, {
             mouse: mouse,
             constraint: {
-                stiffness: 0.2,
+                stiffness: 1,
                 render: {
                     visible: false,
                 },
             },
         });
+
+    Events.on(mouseConstraint, "mousedown", () => {
+        const body = mouseConstraint.body;
+        console.log(body);
+        if (body) {
+            console.log(body.id);
+            Body.setStatic(body, false);
+        }
+    });
     Composite.add(world, mouseConstraint);
 }
 
@@ -96,10 +107,12 @@ const createBodies = function () {
 };
 
 const createPiece = function (x, y) {
-    return Bodies.circle(x, y, PIECE_R, {
+    const body = Bodies.circle(x, y, PIECE_R, {
         restitution: 1,
         friction: 0,
         frictionAir: 0.03,
         frictionStatic: 0,
+        isStatic: true,
     });
+    return body;
 };
