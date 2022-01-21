@@ -17,6 +17,11 @@ var Engine = Matter.Engine,
     Bodies = Matter.Bodies,
     Events = Matter.Events;
 
+// create the game state
+var gameState = {
+    selectedPiece: null,
+};
+
 export function startGame() {
     // create an engine with no gravity
     var engine = Engine.create(),
@@ -58,14 +63,22 @@ export function startGame() {
             },
         });
 
+    // If a piece was clicked,
+    // track the motion of the mouse until it is released,
+    // then launch the piece corresponding to where the mouse was released.
     Events.on(mouseConstraint, "mousedown", () => {
         const body = mouseConstraint.body;
+        gameState.selectedPiece = body;
         console.log(body);
+    });
+
+    Events.on(mouseConstraint, "mouseup", () => {
+        const body = gameState.selectedPiece;
         if (body) {
-            console.log(body.id);
-            Body.setStatic(body, false);
+            console.log(mouseConstraint.mouse.position);
         }
     });
+
     Composite.add(world, mouseConstraint);
 }
 
