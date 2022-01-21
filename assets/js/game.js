@@ -72,15 +72,33 @@ export function startGame() {
         console.log(body);
     });
 
+    Events.on(mouseConstraint, "mousemove", () => {
+        const { selectedPiece } = gameState;
+        if (selectedPiece) {
+            renderArrow(
+                selectedPiece.position,
+                mouseConstraint.mouse.position,
+            );
+        }
+    });
+
     Events.on(mouseConstraint, "mouseup", () => {
-        const body = gameState.selectedPiece;
-        if (body) {
+        const { selectedPiece } = gameState;
+        if (selectedPiece) {
             console.log(mouseConstraint.mouse.position);
         }
+        gameState.selectedPiece = null;
     });
 
     Composite.add(world, mouseConstraint);
 }
+
+// The starting and ending position of the arrow of the form: {x, y}
+const renderArrow = (start, end) => {
+    console.log(
+        `Arrow start: ${start.x}, ${start.y} end: ${end.x}, ${end.y}`,
+    );
+};
 
 const createBodies = function () {
     const pieces = [createPiece(400, 200), createPiece(450, 90)];
