@@ -16,8 +16,9 @@ var Engine = Matter.Engine,
     Bodies = Matter.Bodies;
 
 export function startGame() {
-    // create an engine
-    var engine = Engine.create();
+    // create an engine with no gravity
+    var engine = Engine.create(),
+        world = engine.world;
     engine.gravity.y = 0;
 
     // create a renderer
@@ -30,11 +31,6 @@ export function startGame() {
         },
     });
 
-    const bodies = createBodies();
-
-    // add all of the bodies to the world
-    Composite.add(engine.world, [...bodies]);
-
     // run the renderer
     Render.run(render);
 
@@ -43,13 +39,27 @@ export function startGame() {
 
     // run the engine
     Runner.run(runner, engine);
+
+    // add all of the bodies to the world
+    const bodies = createBodies();
+    Composite.add(world, [...bodies]);
+
+    // add mouse control
+    var mouse = Mouse.create(render.canvas),
+        mouseConstraint = MouseConstraint.create(engine, {
+            mouse: mouse,
+            constraint: {
+                stiffness: 0.2,
+                render: {
+                    visible: false,
+                },
+            },
+        });
+    Composite.add(world, mouseConstraint);
 }
 
 const createBodies = function () {
-    const pieces = [
-        Bodies.circle(400, 200, PIECE_R),
-        Bodies.circle(450, 90, PIECE_R),
-    ];
+    const pieces = [createPiece(400, 200), createPiece(450, 90)];
 
     const border = [
         // bottom
@@ -83,4 +93,13 @@ const createBodies = function () {
     ];
 
     return [...pieces, ...border];
+};
+
+const createPiece = function (x, y) {
+    return Bodies.circle(x, y, PIECE_R, {
+        restitution: 1,
+        friction: 0,
+        frictionAir: 0.03,
+        frictionStatic: 0,
+    });
 };
