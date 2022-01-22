@@ -85,13 +85,21 @@ export function startGame() {
     Events.on(mouseConstraint, "mouseup", () => {
         const { selectedPiece } = gameState;
         if (selectedPiece) {
-            console.log(mouseConstraint.mouse.position);
+            launch(selectedPiece, mouseConstraint.mouse.position);
         }
         gameState.selectedPiece = null;
     });
 
     Composite.add(world, mouseConstraint);
 }
+
+// parameters are of the form {x, y}
+const launch = (piece, end) => {
+    const start = piece.position;
+    const velX = end.x - start.x;
+    const velY = end.y - start.y;
+    console.log(`Launching with velocity: ${velX}, ${velY}`);
+};
 
 // The starting and ending position of the arrow of the form: {x, y}
 const renderArrow = (start, end) => {
@@ -143,7 +151,6 @@ const createPiece = function (x, y) {
         friction: 0,
         frictionAir: 0.03,
         frictionStatic: 0,
-        isStatic: true,
     });
     return body;
 };
