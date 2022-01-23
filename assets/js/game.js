@@ -16,7 +16,8 @@ const MAX_LAUNCH_SQUARED = MAX_LAUNCH * MAX_LAUNCH;
 // The value of the collision category and collision mask of player's mouse.
 const P1 = 0x0002;
 
-const P_COLOR = "#FAEBD7";
+const P1_COLOR = "green";
+const P2_COLOR = "purple";
 
 // module aliases
 var Engine = Matter.Engine,
@@ -52,6 +53,7 @@ export function startGame() {
         options: {
             width: SCREEN_W,
             height: SCREEN_H,
+            wireframes: false,
         },
     });
 
@@ -190,16 +192,22 @@ const renderArrow = (start, end) => {
 const createPlayerPieces = () => {
     const playerPieces = [
         createPiece(SCREEN_W / 4, SCREEN_H / 4, {
-            fillStyle: P_COLOR,
+            fillStyle: P1_COLOR,
         }),
-        createPiece(SCREEN_W / 4, (SCREEN_H * 3) / 4),
+        createPiece(SCREEN_W / 4, (SCREEN_H * 3) / 4, {
+            fillStyle: P1_COLOR,
+        }),
     ];
     Game.playerPieces = playerPieces;
 };
 
 const createOpponentPieces = () => {
-    createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4);
-    createPiece((SCREEN_W * 3) / 4, (SCREEN_H * 3) / 4);
+    createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4, {
+        fillStyle: P2_COLOR,
+    });
+    createPiece((SCREEN_W * 3) / 4, (SCREEN_H * 3) / 4, {
+        fillStyle: P2_COLOR,
+    });
 };
 
 const createBorder = () => {
@@ -272,6 +280,9 @@ const createSensor = function (piece, player) {
         collisionFilter: {
             category: player,
             mask: player,
+        },
+        render: {
+            fillStyle: P1_COLOR,
         },
     });
 
