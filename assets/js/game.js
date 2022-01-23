@@ -6,6 +6,9 @@ const SCREEN_H = 600;
 
 const PIECE_R = 30;
 
+// The value of the collision category and collision mask of player's mouse.
+const P1 = 0x0002;
+
 // module aliases
 var Engine = Matter.Engine,
     Render = Matter.Render,
@@ -61,6 +64,10 @@ export function startGame() {
                     visible: false,
                 },
             },
+            collisionFilter: {
+                category: P1,
+                mask: P1,
+            },
         });
 
     // If a piece was clicked,
@@ -93,7 +100,8 @@ export function startGame() {
     Composite.add(world, mouseConstraint);
 }
 
-// parameters are of the form {x, y}
+// piece is a `body`
+// `end` is of the form {x, y}
 const launch = (piece, end) => {
     const start = piece.position;
     const velX = end.x - start.x;
@@ -109,7 +117,17 @@ const renderArrow = (start, end) => {
 };
 
 const createBodies = function () {
-    const pieces = [createPiece(400, 200), createPiece(450, 90)];
+    const pieces = [
+        createPiece(SCREEN_W / 4, SCREEN_H / 4),
+        createPiece(SCREEN_W / 4, (SCREEN_H * 3) / 4),
+        createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4),
+        createPiece((SCREEN_W * 3) / 4, (SCREEN_H * 3) / 4),
+    ];
+
+    const sensors = [
+        createSensor(pieces[0], P1),
+        createSensor(pieces[1], P1),
+    ];
 
     const border = [
         // bottom
@@ -142,7 +160,7 @@ const createBodies = function () {
         ),
     ];
 
-    return [...pieces, ...border];
+    return [...pieces, ...sensors, ...border];
 };
 
 const createPiece = function (x, y) {
@@ -153,4 +171,20 @@ const createPiece = function (x, y) {
         frictionStatic: 0,
     });
     return body;
+};
+
+// Creates a sensor with the same size and location as the `piece`
+// The sensor will have have the collision filter group and category set to the `player`
+const createSensor = function (piece, player) {
+    const position = piece.position;
+    const sensor = Bodies.circle(position.x, position.y, PIECE_R, {
+        isSensor: true,
+        isStatic: true,
+        collisionFilter: {
+            category: player,
+            mask: player,
+        },
+    });
+
+    return sensor;
 };
