@@ -7,12 +7,16 @@ const SCREEN_H = 600;
 const PIECE_R = 30;
 
 // determines the launch strength
-const LAUNCH_MULT = 0.07;
+const LAUNCH_MULT = 0.075;
 
-const MAX_LAUNCH_SPEED = 15;
+// maximum magnitude of the launch velocity vector squared
+const MAX_LAUNCH = 180;
+const MAX_LAUNCH_SQUARED = MAX_LAUNCH * MAX_LAUNCH;
 
 // The value of the collision category and collision mask of player's mouse.
 const P1 = 0x0002;
+
+const P_COLOR = "#FAEBD7";
 
 // module aliases
 var Engine = Matter.Engine,
@@ -25,8 +29,8 @@ var Engine = Matter.Engine,
     Bodies = Matter.Bodies,
     Events = Matter.Events;
 
-// create the game state
-var gameState = {
+// create the Game state
+var Game = {
     selectedPiece: null,
     playerPieces: [],
     // stores the launch velocities for each of the pieces.
@@ -35,13 +39,12 @@ var gameState = {
     sensorToPiece: new Map(),
 };
 
+// create an engine with no gravity
 var engine = Engine.create(),
     world = engine.world;
 engine.gravity.y = 0;
 
 export function startGame() {
-    // create an engine with no gravity
-
     // create a renderer
     var render = Render.create({
         element: document.body,
@@ -85,12 +88,11 @@ export function startGame() {
     // then launch the piece corresponding to where the mouse was released.
     Events.on(mouseConstraint, "mousedown", () => {
         const sensor = mouseConstraint.body;
-        gameState.selectedPiece =
-            gameState.sensorToPiece.get(sensor);
+        Game.selectedPiece = Game.sensorToPiece.get(sensor);
     });
 
     Events.on(mouseConstraint, "mousemove", () => {
-        const { selectedPiece } = gameState;
+        const { selectedPiece } = Game;
         if (selectedPiece) {
             renderArrow(
                 selectedPiece.position,
@@ -100,14 +102,14 @@ export function startGame() {
     });
 
     Events.on(mouseConstraint, "mouseup", () => {
-        const { selectedPiece } = gameState;
+        const { selectedPiece } = Game;
         if (selectedPiece) {
             storeLaunchVec(
                 selectedPiece,
                 mouseConstraint.mouse.position,
             );
         }
-        gameState.selectedPiece = null;
+        Game.selectedPiece = null;
     });
 
     Composite.add(world, mouseConstraint);
@@ -124,28 +126,28 @@ const launch = () => {
     for (const [
         piece,
         launchVec,
-    ] of gameState.pieceToLaunchVec.entries()) {
+    ] of Game.pieceToLaunchVec.entries()) {
         Body.setVelocity(piece, launchVec);
     }
-    gameState.pieceToLaunchVec = new Map();
+    Game.pieceToLaunchVec = new Map();
 };
 
 const destroySensors = () => {
     for (const [
         sensor,
         _piece, // eslint-disable-line no-unused-vars
-    ] of gameState.sensorToPiece.entries()) {
+    ] of Game.sensorToPiece.entries()) {
         Composite.remove(world, sensor);
     }
 
-    // prepare the game state to receive the sensors in the next round
-    gameState.sensorToPiece = new Map();
+    // prepare the Game state to receive the sensors in the next round
+    Game.sensorToPiece = new Map();
 };
 
 const createSensors = () => {
-    for (const piece of gameState.playerPieces) {
+    for (const piece of Game.playerPieces) {
         const sensor = createSensor(piece, P1);
-        gameState.sensorToPiece.set(sensor, piece);
+        Game.sensorToPiece.set(sensor, piece);
     }
 };
 
@@ -154,23 +156,28 @@ const createSensors = () => {
 const storeLaunchVec = (piece, end) => {
     const start = piece.position;
 
-    let velX = maxLaunch((end.x - start.x) * LAUNCH_MULT);
-    let velY = maxLaunch((end.y - start.y) * LAUNCH_MULT);
+    let velX = end.x - start.x;
+    let velY = end.y - start.y;
 
-    gameState.pieceToLaunchVec.set(piece, { x: velX, y: velY });
-
-    console.log(`Will launch with velocity: ${velX}, ${velY}`);
+    Game.pieceToLaunchVec.set(
+        piece,
+        checkLaunch({ x: velX, y: velY }),
+    );
 };
 
-// returns vel capped to the maximum launch speed
-const maxLaunch = (vel) => {
-    if (vel > MAX_LAUNCH_SPEED) {
-        return MAX_LAUNCH_SPEED;
-    } else if (vel < -MAX_LAUNCH_SPEED) {
-        return -MAX_LAUNCH_SPEED;
-    } else {
-        return vel;
+// returns the velocity vector capped to the maximum launch speed
+const checkLaunch = (vel) => {
+    console.log(`${vel.x} and ${vel.y}`);
+    const velXsq = vel.x * vel.x;
+    const velYsq = vel.y * vel.y;
+    if (velXsq + velYsq > MAX_LAUNCH_SQUARED) {
+        const normalize = Math.sqrt(velXsq + velYsq);
+        vel.x = (MAX_LAUNCH * vel.x) / normalize;
+        vel.y = (MAX_LAUNCH * vel.y) / normalize;
     }
+    vel.x *= LAUNCH_MULT;
+    vel.y *= LAUNCH_MULT;
+    return vel;
 };
 
 // The starting and ending position of the arrow of the form: {x, y}
@@ -182,10 +189,12 @@ const renderArrow = (start, end) => {
 
 const createPlayerPieces = () => {
     const playerPieces = [
-        createPiece(SCREEN_W / 4, SCREEN_H / 4),
+        createPiece(SCREEN_W / 4, SCREEN_H / 4, {
+            fillStyle: P_COLOR,
+        }),
         createPiece(SCREEN_W / 4, (SCREEN_H * 3) / 4),
     ];
-    gameState.playerPieces = playerPieces;
+    Game.playerPieces = playerPieces;
 };
 
 const createOpponentPieces = () => {
@@ -203,15 +212,18 @@ const createBorder = () => {
             BORDER_W,
             {
                 isStatic: true,
+                isSensor: true,
             },
         ),
         // top
         Bodies.rectangle(SCREEN_W / 2, 0, SCREEN_W, BORDER_W, {
             isStatic: true,
+            isSensor: true,
         }),
         // left
         Bodies.rectangle(0, SCREEN_H / 2, BORDER_W, SCREEN_H, {
             isStatic: true,
+            isSensor: true,
         }),
         // right
         Bodies.rectangle(
@@ -221,6 +233,7 @@ const createBorder = () => {
             SCREEN_H,
             {
                 isStatic: true,
+                isSensor: true,
             },
         ),
     ];
@@ -235,12 +248,14 @@ const createBodies = function () {
     createBorder();
 };
 
-const createPiece = function (x, y) {
+// creates a piece at the location (x, y) and with the render applied
+const createPiece = function (x, y, render = {}) {
     const piece = Bodies.circle(x, y, PIECE_R, {
         restitution: 1,
         friction: 0,
         frictionAir: 0.03,
         frictionStatic: 0,
+        render: render,
     });
     Composite.add(world, piece);
     return piece;
@@ -261,7 +276,7 @@ const createSensor = function (piece, player) {
     });
 
     // link the sensor to its corresponding piece
-    gameState.sensorToPiece.set(sensor, piece);
+    Game.sensorToPiece.set(sensor, piece);
 
     Composite.add(world, sensor);
 
