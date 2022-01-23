@@ -29,7 +29,9 @@ var Engine = Matter.Engine,
 var gameState = {
     selectedPiece: null,
     playerPieces: [],
-    // a map of sensors to the pieces they correspond to
+    // stores the launch velocities for each of the pieces.
+    pieceToLaunchVec: new Map(),
+    // holds sensors to the pieces they correspond to
     sensorToPiece: new Map(),
 };
 
@@ -98,16 +100,35 @@ export function startGame() {
     });
 
     Events.on(mouseConstraint, "mouseup", () => {
-        destroySensors();
         const { selectedPiece } = gameState;
         if (selectedPiece) {
-            launch(selectedPiece, mouseConstraint.mouse.position);
+            storeLaunchVec(
+                selectedPiece,
+                mouseConstraint.mouse.position,
+            );
         }
         gameState.selectedPiece = null;
     });
 
     Composite.add(world, mouseConstraint);
+
+    document.body.onkeyup = function (e) {
+        if (e.key == " ") {
+            launch();
+        }
+    };
 }
+
+const launch = () => {
+    destroySensors();
+    for (const [
+        piece,
+        launchVec,
+    ] of gameState.pieceToLaunchVec.entries()) {
+        Body.setVelocity(piece, launchVec);
+    }
+    gameState.pieceToLaunchVec = new Map();
+};
 
 const destroySensors = () => {
     for (const [
@@ -130,7 +151,7 @@ const createSensors = () => {
 
 // piece is a `body`
 // `end` is of the form {x, y}
-const launch = (piece, end) => {
+const storeLaunchVec = (piece, end) => {
     const start = piece.position;
     let velX = (end.x - start.x) * LAUNCH_MULT;
     if (velX > MAX_LAUNCH_VEL) {
@@ -141,8 +162,9 @@ const launch = (piece, end) => {
         velY = MAX_LAUNCH_VEL;
     }
 
-    Body.setVelocity(piece, { x: velX, y: velY });
-    console.log(`Launching with velocity: ${velX}, ${velY}`);
+    gameState.pieceToLaunchVec.set(piece, { x: velX, y: velY });
+
+    console.log(`Will launch with velocity: ${velX}, ${velY}`);
 };
 
 // The starting and ending position of the arrow of the form: {x, y}
