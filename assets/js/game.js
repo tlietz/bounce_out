@@ -156,10 +156,14 @@ const storeLaunchVec = (piece, end) => {
     let velX = (end.x - start.x) * LAUNCH_MULT;
     if (velX > MAX_LAUNCH_VEL) {
         velX = MAX_LAUNCH_VEL;
+    } else if (velX < -MAX_LAUNCH_VEL) {
+        velX = -MAX_LAUNCH_VEL;
     }
     let velY = (end.y - start.y) * LAUNCH_MULT;
     if (velY > MAX_LAUNCH_VEL) {
         velY = MAX_LAUNCH_VEL;
+    } else if (velY < -MAX_LAUNCH_VEL) {
+        velY = -MAX_LAUNCH_VEL;
     }
 
     gameState.pieceToLaunchVec.set(piece, { x: velX, y: velY });
