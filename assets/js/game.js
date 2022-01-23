@@ -23,13 +23,17 @@ var Engine = Matter.Engine,
 // create the game state
 var gameState = {
     selectedPiece: null,
+    playerPieces: [],
+    // a map of sensors to the pieces they correspond to
+    sensorToPiece: new Map(),
 };
+
+var engine = Engine.create(),
+    world = engine.world;
+engine.gravity.y = 0;
 
 export function startGame() {
     // create an engine with no gravity
-    var engine = Engine.create(),
-        world = engine.world;
-    engine.gravity.y = 0;
 
     // create a renderer
     var render = Render.create({
@@ -51,8 +55,7 @@ export function startGame() {
     Runner.run(runner, engine);
 
     // add all of the bodies to the world
-    const bodies = createBodies();
-    Composite.add(world, [...bodies]);
+    createBodies();
 
     // add mouse control
     var mouse = Mouse.create(render.canvas),
@@ -74,9 +77,9 @@ export function startGame() {
     // track the motion of the mouse until it is released,
     // then launch the piece corresponding to where the mouse was released.
     Events.on(mouseConstraint, "mousedown", () => {
-        const body = mouseConstraint.body;
-        gameState.selectedPiece = body;
-        console.log(body);
+        const sensor = mouseConstraint.body;
+        gameState.selectedPiece =
+            gameState.sensorToPiece.get(sensor);
     });
 
     Events.on(mouseConstraint, "mousemove", () => {
@@ -90,6 +93,7 @@ export function startGame() {
     });
 
     Events.on(mouseConstraint, "mouseup", () => {
+        destroySensors();
         const { selectedPiece } = gameState;
         if (selectedPiece) {
             launch(selectedPiece, mouseConstraint.mouse.position);
@@ -100,12 +104,32 @@ export function startGame() {
     Composite.add(world, mouseConstraint);
 }
 
+const destroySensors = () => {
+    for (const [
+        sensor,
+        _piece, // eslint-disable-line no-unused-vars
+    ] of gameState.sensorToPiece.entries()) {
+        Composite.remove(world, sensor);
+    }
+
+    // prepare the game state to receive the sensors in the next round
+    gameState.sensorToPiece = new Map();
+};
+
+const createSensors = () => {
+    for (const piece of gameState.playerPieces) {
+        const sensor = createSensor(piece, P1);
+        gameState.sensorToPiece.set(sensor, piece);
+    }
+};
+
 // piece is a `body`
 // `end` is of the form {x, y}
 const launch = (piece, end) => {
     const start = piece.position;
     const velX = end.x - start.x;
     const velY = end.y - start.y;
+    Body.setVelocity(piece, { x: velX, y: velY });
     console.log(`Launching with velocity: ${velX}, ${velY}`);
 };
 
@@ -116,19 +140,20 @@ const renderArrow = (start, end) => {
     );
 };
 
-const createBodies = function () {
-    const pieces = [
+const createPlayerPieces = () => {
+    const playerPieces = [
         createPiece(SCREEN_W / 4, SCREEN_H / 4),
         createPiece(SCREEN_W / 4, (SCREEN_H * 3) / 4),
-        createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4),
-        createPiece((SCREEN_W * 3) / 4, (SCREEN_H * 3) / 4),
     ];
+    gameState.playerPieces = playerPieces;
+};
 
-    const sensors = [
-        createSensor(pieces[0], P1),
-        createSensor(pieces[1], P1),
-    ];
+const createOpponentPieces = () => {
+    createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4);
+    createPiece((SCREEN_W * 3) / 4, (SCREEN_H * 3) / 4);
+};
 
+const createBorder = () => {
     const border = [
         // bottom
         Bodies.rectangle(
@@ -160,21 +185,30 @@ const createBodies = function () {
         ),
     ];
 
-    return [...pieces, ...sensors, ...border];
+    Composite.add(world, border);
+};
+
+const createBodies = function () {
+    createPlayerPieces();
+    createSensors();
+    createOpponentPieces();
+    createBorder();
 };
 
 const createPiece = function (x, y) {
-    const body = Bodies.circle(x, y, PIECE_R, {
+    const piece = Bodies.circle(x, y, PIECE_R, {
         restitution: 1,
         friction: 0,
         frictionAir: 0.03,
         frictionStatic: 0,
     });
-    return body;
+    Composite.add(world, piece);
+    return piece;
 };
 
-// Creates a sensor with the same size and location as the `piece`
-// The sensor will have have the collision filter group and category set to the `player`
+// Creates a sensor, and adds it to the Composite with the same size and location as the `piece`
+// The sensor will have have its collision filter group and category set to the `player`
+// The sensor created is returned
 const createSensor = function (piece, player) {
     const position = piece.position;
     const sensor = Bodies.circle(position.x, position.y, PIECE_R, {
@@ -185,6 +219,11 @@ const createSensor = function (piece, player) {
             mask: player,
         },
     });
+
+    // link the sensor to its corresponding piece
+    gameState.sensorToPiece.set(sensor, piece);
+
+    Composite.add(world, sensor);
 
     return sensor;
 };
