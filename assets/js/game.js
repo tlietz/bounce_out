@@ -9,7 +9,7 @@ const PIECE_R = 30;
 // determines the launch strength
 const LAUNCH_MULT = 0.07;
 
-const MAX_LAUNCH_VEL = 15;
+const MAX_LAUNCH_SPEED = 15;
 
 // The value of the collision category and collision mask of player's mouse.
 const P1 = 0x0002;
@@ -153,22 +153,24 @@ const createSensors = () => {
 // `end` is of the form {x, y}
 const storeLaunchVec = (piece, end) => {
     const start = piece.position;
-    let velX = (end.x - start.x) * LAUNCH_MULT;
-    if (velX > MAX_LAUNCH_VEL) {
-        velX = MAX_LAUNCH_VEL;
-    } else if (velX < -MAX_LAUNCH_VEL) {
-        velX = -MAX_LAUNCH_VEL;
-    }
-    let velY = (end.y - start.y) * LAUNCH_MULT;
-    if (velY > MAX_LAUNCH_VEL) {
-        velY = MAX_LAUNCH_VEL;
-    } else if (velY < -MAX_LAUNCH_VEL) {
-        velY = -MAX_LAUNCH_VEL;
-    }
+
+    let velX = maxLaunch((end.x - start.x) * LAUNCH_MULT);
+    let velY = maxLaunch((end.y - start.y) * LAUNCH_MULT);
 
     gameState.pieceToLaunchVec.set(piece, { x: velX, y: velY });
 
     console.log(`Will launch with velocity: ${velX}, ${velY}`);
+};
+
+// returns vel capped to the maximum launch speed
+const maxLaunch = (vel) => {
+    if (vel > MAX_LAUNCH_SPEED) {
+        return MAX_LAUNCH_SPEED;
+    } else if (vel < -MAX_LAUNCH_SPEED) {
+        return -MAX_LAUNCH_SPEED;
+    } else {
+        return vel;
+    }
 };
 
 // The starting and ending position of the arrow of the form: {x, y}
