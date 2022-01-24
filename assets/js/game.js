@@ -33,7 +33,8 @@ var Engine = Matter.Engine,
 // create the Game state
 var Game = {
     selectedPiece: null,
-    playerPieces: [],
+    playerPieces: new Set(),
+    opponentPieces: new Set(),
     // stores the launch velocities for each of the pieces.
     pieceToLaunchVec: new Map(),
     // holds sensors to the pieces they correspond to
@@ -123,7 +124,7 @@ export function startGame() {
     };
 }
 
-const launch = () => {
+const launch = async () => {
     destroySensors();
     for (const [
         piece,
@@ -137,9 +138,49 @@ const launch = () => {
 
 const simulate = () => {
     setTimeout(function () {
+        outOfBoundsCheck();
         createSensors();
         console.log("sensors created");
     }, 5000);
+};
+
+const outOfBoundsCheck = () => {
+    for (const piece of Game.playerPieces) {
+        if (outOfBounds(piece)) {
+            console.log("OUT");
+            destroyPiece(piece);
+        }
+    }
+    for (const piece of Game.opponentPieces) {
+        if (outOfBounds(piece)) {
+            console.log("OUT");
+            destroyPiece(piece);
+        }
+    }
+};
+
+const outOfBounds = (piece) => {
+    const x = piece.position.x;
+    const y = piece.position.y;
+
+    if (
+        x < BORDER_W ||
+        x > SCREEN_W - BORDER_W ||
+        y < BORDER_W ||
+        y > SCREEN_H - BORDER_W
+    ) {
+        return true;
+    }
+    return false;
+};
+
+const destroyPiece = (piece) => {
+    if (Game.opponentPieces.has(piece)) {
+        Game.opponentPieces.delete(piece);
+    } else {
+        Game.playerPieces.delete(piece);
+    }
+    Composite.remove(world, piece);
 };
 
 const destroySensors = () => {
@@ -198,24 +239,27 @@ const renderArrow = (start, end) => {
 };
 
 const createPlayerPieces = () => {
-    const playerPieces = [
+    const playerPieces = new Set([
         createPiece(SCREEN_W / 4, SCREEN_H / 4, {
             fillStyle: P1_COLOR,
         }),
         createPiece(SCREEN_W / 4, (SCREEN_H * 3) / 4, {
             fillStyle: P1_COLOR,
         }),
-    ];
+    ]);
     Game.playerPieces = playerPieces;
 };
 
 const createOpponentPieces = () => {
-    createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4, {
-        fillStyle: P2_COLOR,
-    });
-    createPiece((SCREEN_W * 3) / 4, (SCREEN_H * 3) / 4, {
-        fillStyle: P2_COLOR,
-    });
+    const opponentPieces = new Set([
+        createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4, {
+            fillStyle: P2_COLOR,
+        }),
+        createPiece((SCREEN_W * 3) / 4, (SCREEN_H * 3) / 4, {
+            fillStyle: P2_COLOR,
+        }),
+    ]);
+    Game.opponentPieces = opponentPieces;
 };
 
 const createBorder = () => {
