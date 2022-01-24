@@ -122,7 +122,7 @@ export function startGame() {
     };
 }
 
-const launch = async () => {
+const launch = () => {
     destroySensors();
     for (const [
         piece,
