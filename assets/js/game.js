@@ -132,6 +132,14 @@ const launch = () => {
         Body.setVelocity(piece, launchVec);
     }
     Game.pieceToLaunchVec = new Map();
+    simulate();
+};
+
+const simulate = () => {
+    setTimeout(function () {
+        createSensors();
+        console.log("sensors created");
+    }, 5000);
 };
 
 const destroySensors = () => {
