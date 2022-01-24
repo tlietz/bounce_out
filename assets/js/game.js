@@ -134,7 +134,6 @@ const launch = async () => {
     simulate();
 };
 
-// TODO: have the border always render last
 const simulate = () => {
     setTimeout(function () {
         outOfBoundsCheck();
