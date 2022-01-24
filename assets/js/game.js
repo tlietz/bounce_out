@@ -1,6 +1,5 @@
 import Matter from "matter-js";
 
-const BORDER_W = 60;
 const SCREEN_W = 800;
 const SCREEN_H = 600;
 
@@ -17,7 +16,6 @@ const P1 = 0x0002;
 
 const P1_COLOR = "green";
 const P2_COLOR = "purple";
-const BORDER_COLOR = "#444444";
 
 // module aliases
 var Engine = Matter.Engine,
@@ -136,6 +134,7 @@ const launch = async () => {
     simulate();
 };
 
+// TODO: have the border always render last
 const simulate = () => {
     setTimeout(function () {
         outOfBoundsCheck();
@@ -163,12 +162,7 @@ const outOfBounds = (piece) => {
     const x = piece.position.x;
     const y = piece.position.y;
 
-    if (
-        x < BORDER_W ||
-        x > SCREEN_W - BORDER_W ||
-        y < BORDER_W ||
-        y > SCREEN_H - BORDER_W
-    ) {
+    if (x < 0 || x > SCREEN_W || y < 0 || y > SCREEN_H) {
         return true;
     }
     return false;
@@ -262,51 +256,10 @@ const createOpponentPieces = () => {
     Game.opponentPieces = opponentPieces;
 };
 
-const createBorder = () => {
-    const border = [
-        // bottom
-        borderPiece(SCREEN_W / 2, SCREEN_H, SCREEN_W, BORDER_W, {
-            isStatic: true,
-            isSensor: true,
-            render: {
-                fillStyle: BORDER_COLOR,
-            },
-        }),
-        // top
-        borderPiece(SCREEN_W / 2, 0, SCREEN_W, BORDER_W, {
-            isStatic: true,
-            isSensor: true,
-        }),
-        // left
-        borderPiece(0, SCREEN_H / 2, BORDER_W, SCREEN_H, {
-            isStatic: true,
-            isSensor: true,
-        }),
-        // right
-        borderPiece(SCREEN_W, SCREEN_H / 2, BORDER_W, SCREEN_H, {
-            isStatic: true,
-            isSensor: true,
-        }),
-    ];
-
-    Composite.add(world, border);
-};
-
-const borderPiece = (x, y, w, h) => {
-    return Bodies.rectangle(x, y, w, h, {
-        isStatic: true,
-        isSensor: true,
-        render: {
-            fillStyle: BORDER_COLOR,
-        },
-    });
-};
-
 const createBodies = function () {
     createPlayerPieces();
     createSensors();
     createOpponentPieces();
-    createBorder();
 };
 
 // creates a piece at the location (x, y) and with the render applied
