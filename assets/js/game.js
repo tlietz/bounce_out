@@ -8,9 +8,8 @@ const PIECE_R = 30;
 
 // determines the launch strength
 const LAUNCH_MULT = 0.075;
-
 // maximum magnitude of the launch velocity vector squared
-const MAX_LAUNCH = 180;
+const MAX_LAUNCH = 150;
 const MAX_LAUNCH_SQUARED = MAX_LAUNCH * MAX_LAUNCH;
 
 // The value of the collision category and collision mask of player's mouse.
@@ -18,6 +17,7 @@ const P1 = 0x0002;
 
 const P1_COLOR = "green";
 const P2_COLOR = "purple";
+const BORDER_COLOR = "#444444";
 
 // module aliases
 var Engine = Matter.Engine,
@@ -213,40 +213,41 @@ const createOpponentPieces = () => {
 const createBorder = () => {
     const border = [
         // bottom
-        Bodies.rectangle(
-            SCREEN_W / 2,
-            SCREEN_H,
-            SCREEN_W,
-            BORDER_W,
-            {
-                isStatic: true,
-                isSensor: true,
+        borderPiece(SCREEN_W / 2, SCREEN_H, SCREEN_W, BORDER_W, {
+            isStatic: true,
+            isSensor: true,
+            render: {
+                fillStyle: BORDER_COLOR,
             },
-        ),
+        }),
         // top
-        Bodies.rectangle(SCREEN_W / 2, 0, SCREEN_W, BORDER_W, {
+        borderPiece(SCREEN_W / 2, 0, SCREEN_W, BORDER_W, {
             isStatic: true,
             isSensor: true,
         }),
         // left
-        Bodies.rectangle(0, SCREEN_H / 2, BORDER_W, SCREEN_H, {
+        borderPiece(0, SCREEN_H / 2, BORDER_W, SCREEN_H, {
             isStatic: true,
             isSensor: true,
         }),
         // right
-        Bodies.rectangle(
-            SCREEN_W,
-            SCREEN_H / 2,
-            BORDER_W,
-            SCREEN_H,
-            {
-                isStatic: true,
-                isSensor: true,
-            },
-        ),
+        borderPiece(SCREEN_W, SCREEN_H / 2, BORDER_W, SCREEN_H, {
+            isStatic: true,
+            isSensor: true,
+        }),
     ];
 
     Composite.add(world, border);
+};
+
+const borderPiece = (x, y, w, h) => {
+    return Bodies.rectangle(x, y, w, h, {
+        isStatic: true,
+        isSensor: true,
+        render: {
+            fillStyle: BORDER_COLOR,
+        },
+    });
 };
 
 const createBodies = function () {
@@ -259,7 +260,7 @@ const createBodies = function () {
 // creates a piece at the location (x, y) and with the render applied
 const createPiece = function (x, y, render = {}) {
     const piece = Bodies.circle(x, y, PIECE_R, {
-        restitution: 1,
+        restitution: 0.8,
         friction: 0,
         frictionAir: 0.03,
         frictionStatic: 0,
