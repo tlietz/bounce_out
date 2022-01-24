@@ -240,6 +240,9 @@ const createPlayerPieces = () => {
         createPiece(SCREEN_W / 4, (SCREEN_H * 3) / 4, {
             fillStyle: P1_COLOR,
         }),
+        createPiece(SCREEN_W / 8, SCREEN_H / 2, {
+            fillStyle: P1_COLOR,
+        }),
     ]);
     Game.playerPieces = playerPieces;
 };
@@ -250,6 +253,9 @@ const createOpponentPieces = () => {
             fillStyle: P2_COLOR,
         }),
         createPiece((SCREEN_W * 3) / 4, (SCREEN_H * 3) / 4, {
+            fillStyle: P2_COLOR,
+        }),
+        createPiece((SCREEN_W * 7) / 8, SCREEN_H / 2, {
             fillStyle: P2_COLOR,
         }),
     ]);
