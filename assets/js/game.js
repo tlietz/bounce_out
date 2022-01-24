@@ -145,14 +145,12 @@ const simulate = () => {
 const outOfBoundsCheck = () => {
     for (const piece of Game.playerPieces) {
         if (outOfBounds(piece)) {
-            console.log("OUT");
-            destroyPiece(piece);
+            destroyPlayerPiece(piece);
         }
     }
     for (const piece of Game.opponentPieces) {
         if (outOfBounds(piece)) {
-            console.log("OUT");
-            destroyPiece(piece);
+            destroyOpponentPiece(piece);
         }
     }
 };
@@ -167,12 +165,18 @@ const outOfBounds = (piece) => {
     return false;
 };
 
+const destroyPlayerPiece = (piece) => {
+    Game.playerPieces.delete(piece);
+    Composite.remove(world, piece);
+    destroyPiece(piece);
+};
+
+const destroyOpponentPiece = (piece) => {
+    Game.opponentPieces.delete(piece);
+    destroyPiece(piece);
+};
+
 const destroyPiece = (piece) => {
-    if (Game.opponentPieces.has(piece)) {
-        Game.opponentPieces.delete(piece);
-    } else {
-        Game.playerPieces.delete(piece);
-    }
     Composite.remove(world, piece);
 };
 
