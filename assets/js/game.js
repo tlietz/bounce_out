@@ -124,10 +124,9 @@ export function startGame() {
 
 const launch = () => {
     destroySensors();
-    for (const [
-        piece,
-        launchVec,
-    ] of Game.pieceToLaunchVec.entries()) {
+    for (var [piece, launchVec] of Game.pieceToLaunchVec.entries()) {
+        launchVec.x *= LAUNCH_MULT;
+        launchVec.y *= LAUNCH_MULT;
         Body.setVelocity(piece, launchVec);
     }
     Game.pieceToLaunchVec = new Map();
@@ -204,18 +203,21 @@ const createSensors = () => {
 const storeLaunchVec = (piece, end) => {
     const start = piece.position;
 
-    let velX = end.x - start.x;
-    let velY = end.y - start.y;
+    let vel = calcLaunchVec({
+        x: end.x - start.x,
+        y: end.y - start.y,
+    });
 
-    Game.pieceToLaunchVec.set(
-        piece,
-        checkLaunch({ x: velX, y: velY }),
-    );
+    // The server expects integers, so round these values for when they will be sent
+    vel.x = Math.round(vel.x);
+    vel.y = Math.round(vel.y);
+
+    console.log(`Launching with vec: ${vel.y}, ${vel.x}`);
+    Game.pieceToLaunchVec.set(piece, vel);
 };
 
 // returns the velocity vector capped to the maximum launch speed
-const checkLaunch = (vel) => {
-    console.log(`${vel.x} and ${vel.y}`);
+const calcLaunchVec = (vel) => {
     const velXsq = vel.x * vel.x;
     const velYsq = vel.y * vel.y;
     if (velXsq + velYsq > MAX_LAUNCH_SQUARED) {
@@ -223,15 +225,13 @@ const checkLaunch = (vel) => {
         vel.x = (MAX_LAUNCH * vel.x) / normalize;
         vel.y = (MAX_LAUNCH * vel.y) / normalize;
     }
-    vel.x *= LAUNCH_MULT;
-    vel.y *= LAUNCH_MULT;
     return vel;
 };
 
 // The starting and ending position of the arrow of the form: {x, y}
 const renderArrow = (start, end) => {
     console.log(
-        `Arrow start: ${start.x}, ${start.y} end: ${end.x}, ${end.y}`,
+        calcLaunchVec({ x: end.x - start.x, y: end.y - start.y }),
     );
 };
 
