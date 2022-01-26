@@ -40,6 +40,8 @@ var Game = {
     pieceToLaunchVec: new Map(),
     // holds sensors to the pieces they correspond to
     sensorToPiece: new Map(),
+    idToPlayerPiece: new Map(),
+    idToOpponentPiece: new Map(),
 };
 
 // create an engine with no gravity
@@ -248,6 +250,10 @@ const createPlayerPieces = () => {
             fillStyle: P1_COLOR,
         }),
     ]);
+
+    for (const piece of playerPieces) {
+        Game.idToPlayerPiece.set(piece.id, piece);
+    }
     Game.playerPieces = playerPieces;
 };
 
@@ -263,6 +269,9 @@ const createOpponentPieces = () => {
             fillStyle: P2_COLOR,
         }),
     ]);
+    for (const piece of opponentPieces) {
+        Game.idToPlayerPiece.set(piece.id, piece);
+    }
     Game.opponentPieces = opponentPieces;
 };
 
