@@ -28,6 +28,7 @@ var Engine = Matter.Engine,
     Bodies = Matter.Bodies,
     Events = Matter.Events;
 
+// TODO: add some visual feedback for the launch vectors.
 // TODO: refactor into an ECS where all pieces are held in one array, then the opponent and player pieces will be tracked through an index to the piece array.
 // TODO: make the piece into a class or object to implement the ECS system.
 // create the Game state
