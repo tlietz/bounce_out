@@ -28,6 +28,8 @@ var Engine = Matter.Engine,
     Bodies = Matter.Bodies,
     Events = Matter.Events;
 
+// TODO: refactor into an ECS where all pieces are held in one array, then the opponent and player pieces will be tracked through an index to the piece array.
+// TODO: make the piece into a class or object to implement the ECS system.
 // create the Game state
 var Game = {
     selectedPiece: null,
@@ -202,21 +204,15 @@ const createSensors = () => {
 // `end` is of the form {x, y}
 const storeLaunchVec = (piece, end) => {
     const start = piece.position;
-
     let vel = calcLaunchVec({
         x: end.x - start.x,
         y: end.y - start.y,
     });
-
-    // The server expects integers, so round these values for when they will be sent
-    vel.x = Math.round(vel.x);
-    vel.y = Math.round(vel.y);
-
-    console.log(`Launching with vec: ${vel.y}, ${vel.x}`);
     Game.pieceToLaunchVec.set(piece, vel);
 };
 
 // returns the velocity vector capped to the maximum launch speed
+// These values will need to be sent to other players, so make them integers for ease of sending
 const calcLaunchVec = (vel) => {
     const velXsq = vel.x * vel.x;
     const velYsq = vel.y * vel.y;
@@ -225,6 +221,10 @@ const calcLaunchVec = (vel) => {
         vel.x = (MAX_LAUNCH * vel.x) / normalize;
         vel.y = (MAX_LAUNCH * vel.y) / normalize;
     }
+
+    // The server expects integers
+    vel.x = Math.round(vel.x);
+    vel.y = Math.round(vel.y);
     return vel;
 };
 
