@@ -1,5 +1,7 @@
 import Matter from "matter-js";
 
+import { channel } from "./user_socket.js";
+
 const SCREEN_W = 800;
 const SCREEN_H = 600;
 
@@ -108,6 +110,7 @@ export function startGame() {
 
     Events.on(mouseConstraint, "mouseup", () => {
         const { selectedPiece } = Game;
+        channel.push("shout", { body: "locked and loaded" });
         if (selectedPiece) {
             storeLaunchVec(
                 selectedPiece,
