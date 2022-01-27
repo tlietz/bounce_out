@@ -61,17 +61,16 @@ export function startGame() {
         },
     });
 
+    // add all of the bodies to the world
+    createBodies();
+
     // run the renderer
     Render.run(render);
 
     // create runner
     var runner = Runner.create();
-
     // run the engine
     Runner.run(runner, engine);
-
-    // add all of the bodies to the world
-    createBodies();
 
     // add mouse control
     var mouse = Mouse.create(render.canvas),
@@ -284,7 +283,7 @@ const createBodies = function () {
 // creates a piece at the location (x, y) and with the render applied
 const createPiece = function (x, y, render = {}) {
     const piece = Bodies.circle(x, y, PIECE_R, {
-        restitution: 0.8,
+        restitution: 0.5,
         friction: 0,
         frictionAir: 0.03,
         frictionStatic: 0,
