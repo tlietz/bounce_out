@@ -122,23 +122,34 @@ export function startGame() {
     Composite.add(world, mouseConstraint);
 
     channel.on("launchVecs", (payload) => {
+        desArrAddToMap(Game.pieceIdToLaunchVec, payload.body);
         console.log(payload.body);
+        launch();
     });
 
     document.body.onkeyup = function (e) {
         if (e.key == " ") {
+            sendLaunchVecs();
             launch();
         }
     };
 }
 
 // returns the piece corresponding to the `id` parameter
-function pieceOfId(id) {
+const pieceOfId = (id) => {
     return Game.idToPiece.get(id);
-}
+};
+
+// Deserializes the array and adds the results to the map
+const desArrAddToMap = (map, arr) => {
+    for (let i = 0; i < arr.length; i += 3) {
+        const pieceId = arr[i];
+        const launchVec = { x: arr[i + 1], y: arr[i + 2] };
+        map.set(pieceId, launchVec);
+    }
+};
 
 const launch = () => {
-    sendLaunchVecs();
     destroySensors();
     for (var [id, launchVec] of Game.pieceIdToLaunchVec.entries()) {
         launchVec.x *= LAUNCH_MULT;
