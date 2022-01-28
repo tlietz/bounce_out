@@ -56,6 +56,17 @@ Plan 2:
     2. The pieces are launched
 6. Once pieces have stopped moving, return to step `3`
 
+In the end, plan 2 was used because it had the least amount of things to change and keep track of each round.
+
+## Assigning Pieces Owned by each Client
+
+The current plan to assign which pieces each client owns is the following:
+
+1. A game lobby is created with a set maximum number of players.
+2. The server sends a `player` integer, starting at `0` to the person that creates the lobby.  
+3. Every time a person joins the lobby, `player` is incremented and sent to the client that joined until the maximum number of players for that lobby is reached.
+4. Clients take the array `[1, 2, 3]`, then add `3 * player` to each index to get an array of the ids of the pieces that they own.
+
 ## TODO
 
 - [ ] Javascript client

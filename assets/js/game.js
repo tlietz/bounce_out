@@ -7,6 +7,9 @@ const SCREEN_H = 600;
 
 const PIECE_R = 30;
 
+// Used for determining which pieces belong to the player
+const PIECE_ID_ARR = [1, 2, 3];
+
 // determines the launch strength
 const LAUNCH_MULT = 0.075;
 // maximum magnitude of the launch velocity vector squared
@@ -110,7 +113,6 @@ export function startGame() {
 
     Events.on(mouseConstraint, "mouseup", () => {
         const { selectedPiece } = Game;
-        channel.push("shout", { body: "locked and loaded" });
         if (selectedPiece) {
             storeLaunchVec(
                 selectedPiece,
@@ -122,6 +124,10 @@ export function startGame() {
 
     Composite.add(world, mouseConstraint);
 
+    channel.on("launchVecs", (payload) => {
+        console.log(payload.body);
+    });
+
     document.body.onkeyup = function (e) {
         if (e.key == " ") {
             launch();
@@ -131,6 +137,8 @@ export function startGame() {
 
 const launch = () => {
     destroySensors();
+    sendLaunchVecs();
+    recvLaunchVecs();
     for (var [piece, launchVec] of Game.pieceToLaunchVec.entries()) {
         launchVec.x *= LAUNCH_MULT;
         launchVec.y *= LAUNCH_MULT;
@@ -139,6 +147,12 @@ const launch = () => {
     Game.pieceToLaunchVec = new Map();
     simulate();
 };
+
+const sendLaunchVecs = () => {
+    channel.push("launchVecs", { body: Game.pieceToLaunchVec });
+};
+
+const recvLaunchVecs = async () => {};
 
 const simulate = () => {
     setTimeout(function () {

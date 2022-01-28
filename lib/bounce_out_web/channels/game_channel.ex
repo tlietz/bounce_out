@@ -13,7 +13,7 @@ defmodule BounceOutWeb.GameChannel do
   # Channels can be used in a request/response fashion
   # by sending replies to requests from the client
   @impl true
-  def handle_in("ping", payload, socket) do
+  def handle_in("player", payload, socket) do
     {:reply, {:ok, payload}, socket}
   end
 
@@ -22,6 +22,11 @@ defmodule BounceOutWeb.GameChannel do
   @impl true
   def handle_in("shout", payload, socket) do
     broadcast!(socket, "shout", payload)
+    {:noreply, socket}
+  end
+
+  def handle_in("launchVecs", payload, socket) do
+    broadcast_from!(socket, "launchVecs", payload)
     {:noreply, socket}
   end
 

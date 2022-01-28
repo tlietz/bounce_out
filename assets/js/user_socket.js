@@ -58,10 +58,6 @@ socket.connect();
 // Now that you are connected, you can join channels with a topic.
 export let channel = socket.channel("game:lobby", {});
 
-channel.on("shout", (payload) => {
-    console.log(payload.body);
-});
-
 channel
     .join()
     .receive("ok", (resp) => {
