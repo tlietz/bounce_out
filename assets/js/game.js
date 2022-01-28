@@ -140,15 +140,6 @@ const pieceOfId = (id) => {
     return Game.idToPiece.get(id);
 };
 
-// Deserializes the array and adds the results to the map
-const desArrAddToMap = (map, arr) => {
-    for (let i = 0; i < arr.length; i += 3) {
-        const pieceId = arr[i];
-        const launchVec = { x: arr[i + 1], y: arr[i + 2] };
-        map.set(pieceId, launchVec);
-    }
-};
-
 const launch = () => {
     destroySensors();
     for (var [id, launchVec] of Game.pieceIdToLaunchVec.entries()) {
@@ -160,8 +151,17 @@ const launch = () => {
     simulate();
 };
 
+// Deserializes the array and adds the results to the map
+const desArrAddToMap = (map, arr) => {
+    for (let i = 0; i < arr.length; i += 3) {
+        const pieceId = arr[i];
+        const launchVec = { x: arr[i + 1], y: arr[i + 2] };
+        map.set(pieceId, launchVec);
+    }
+};
+
 // Returns the serialized form of the launch vector map.
-// The serialized form consists of an array with 3 elements per launch vector:
+// The serialized form consists of an array with the following elements:
 // [pieceId_1, x1, y1, pieceId_2, x2, y2, ...]
 // where `x` is the x component and `y` is the y component of the launch vector of
 // of the corresponding piece.
