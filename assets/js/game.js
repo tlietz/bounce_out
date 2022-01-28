@@ -31,6 +31,7 @@ var Engine = Matter.Engine,
     Events = Matter.Events;
 
 // TODO: add some visual feedback for the launch vectors.
+// TODO: Have all pieces launch in the same frame, instead of having a for loop do that
 // TODO: refactor into an ECS where all pieces are held in one array, then the opponent and player pieces will be tracked through an index to the piece array.
 // TODO: make the piece into a class or object to implement the ECS system.
 // create the Game state
