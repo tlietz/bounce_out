@@ -7,9 +7,6 @@ const SCREEN_H = 600;
 
 const PIECE_R = 30;
 
-// Used for determining which pieces belong to the player
-const PIECE_ID_ARR = [1, 2, 3];
-
 // determines the launch strength
 const LAUNCH_MULT = 0.075;
 // maximum magnitude of the launch velocity vector squared
@@ -43,7 +40,7 @@ var Game = {
     idToPiece: new Map(),
     playerPieceIds: new Set(),
     opponentPieceIds: new Set(),
-    // stores the launch velocities for each of the pieces.
+    // stores the launch vector for each of the pieces.
     pieceIdToLaunchVec: new Map(),
     // holds sensors to the id of the pieces they correspond to
     sensorToPieceId: new Map(),
@@ -135,14 +132,14 @@ export function startGame() {
     };
 }
 
+// returns the piece corresponding to the `id` parameter
 function pieceOfId(id) {
     return Game.idToPiece.get(id);
 }
 
 const launch = () => {
-    destroySensors();
     sendLaunchVecs();
-    recvLaunchVecs();
+    destroySensors();
     for (var [id, launchVec] of Game.pieceIdToLaunchVec.entries()) {
         launchVec.x *= LAUNCH_MULT;
         launchVec.y *= LAUNCH_MULT;
@@ -152,11 +149,32 @@ const launch = () => {
     simulate();
 };
 
-const sendLaunchVecs = () => {
-    channel.push("launchVecs", { body: Game.pieceIdToLaunchVec });
+// Returns the serialized form of the launch vector map.
+// The serialized form consists of an array with 3 elements per launch vector:
+// [pieceId_1, x1, y1, pieceId_2, x2, y2, ...]
+// where `x` is the x component and `y` is the y component of the launch vector of
+// of the corresponding piece.
+const serLaunchVec = (pieceIdToLaunchVec) => {
+    // make an array with enough room to serialize the launch vector map.
+    let launchVecArr = Array(3 * pieceIdToLaunchVec.size);
+
+    let i = 0;
+    for (const [id, launchVec] of pieceIdToLaunchVec) {
+        launchVecArr[i] = id;
+        i++;
+        launchVecArr[i] = launchVec.x;
+        i++;
+        launchVecArr[i] = launchVec.y;
+        i++;
+    }
+    return launchVecArr;
 };
 
-const recvLaunchVecs = async () => {};
+const sendLaunchVecs = () => {
+    // Transform the launch vec map into an array because it is compatible with the server.
+    const launchVecArr = serLaunchVec(Game.pieceIdToLaunchVec);
+    channel.push("launchVecs", { body: launchVecArr });
+};
 
 const simulate = () => {
     setTimeout(function () {
@@ -208,7 +226,6 @@ const destroySensors = () => {
 
 const createSensors = () => {
     for (const id of Game.playerPieceIds) {
-        console.log(pieceOfId(id));
         const sensor = createSensor(pieceOfId(id), P1);
         Game.sensorToPieceId.set(sensor, id);
     }
