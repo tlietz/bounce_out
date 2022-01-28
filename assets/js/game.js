@@ -38,15 +38,15 @@ var Engine = Matter.Engine,
 // TODO: make the piece into a class or object to implement the ECS system.
 // create the Game state
 var Game = {
-    selectedPiece: null,
-    playerPieces: new Set(),
-    opponentPieces: new Set(),
+    // 0 when no piece is selected
+    selectedPieceId: 0,
+    idToPiece: new Map(),
+    playerPieceIds: new Set(),
+    opponentPieceIds: new Set(),
     // stores the launch velocities for each of the pieces.
-    pieceToLaunchVec: new Map(),
-    // holds sensors to the pieces they correspond to
-    sensorToPiece: new Map(),
-    idToPlayerPiece: new Map(),
-    idToOpponentPiece: new Map(),
+    pieceIdToLaunchVec: new Map(),
+    // holds sensors to the id of the pieces they correspond to
+    sensorToPieceId: new Map(),
 };
 
 // create an engine with no gravity
@@ -95,31 +95,31 @@ export function startGame() {
 
     // If a piece was clicked,
     // track the motion of the mouse until it is released,
-    // then launch the piece corresponding to where the mouse was released.
+    // then store the launch vector of the piece corresponding to where the mouse was released.
     Events.on(mouseConstraint, "mousedown", () => {
         const sensor = mouseConstraint.body;
-        Game.selectedPiece = Game.sensorToPiece.get(sensor);
+        Game.selectedPieceId = Game.sensorToPieceId.get(sensor);
     });
 
     Events.on(mouseConstraint, "mousemove", () => {
-        const { selectedPiece } = Game;
+        const selectedPiece = pieceOfId(Game.selectedPieceId);
         if (selectedPiece) {
             renderArrow(
-                selectedPiece.position,
+                selectedPiece,
                 mouseConstraint.mouse.position,
             );
         }
     });
 
     Events.on(mouseConstraint, "mouseup", () => {
-        const { selectedPiece } = Game;
+        const selectedPiece = pieceOfId(Game.selectedPieceId);
         if (selectedPiece) {
             storeLaunchVec(
                 selectedPiece,
                 mouseConstraint.mouse.position,
             );
         }
-        Game.selectedPiece = null;
+        Game.selectedPieceId = 0;
     });
 
     Composite.add(world, mouseConstraint);
@@ -135,21 +135,25 @@ export function startGame() {
     };
 }
 
+function pieceOfId(id) {
+    return Game.idToPiece.get(id);
+}
+
 const launch = () => {
     destroySensors();
     sendLaunchVecs();
     recvLaunchVecs();
-    for (var [piece, launchVec] of Game.pieceToLaunchVec.entries()) {
+    for (var [id, launchVec] of Game.pieceIdToLaunchVec.entries()) {
         launchVec.x *= LAUNCH_MULT;
         launchVec.y *= LAUNCH_MULT;
-        Body.setVelocity(piece, launchVec);
+        Body.setVelocity(pieceOfId(id), launchVec);
     }
-    Game.pieceToLaunchVec = new Map();
+    Game.pieceIdToLaunchVec = new Map();
     simulate();
 };
 
 const sendLaunchVecs = () => {
-    channel.push("launchVecs", { body: Game.pieceToLaunchVec });
+    channel.push("launchVecs", { body: Game.pieceIdToLaunchVec });
 };
 
 const recvLaunchVecs = async () => {};
@@ -163,14 +167,15 @@ const simulate = () => {
 };
 
 const outOfBoundsCheck = () => {
-    for (const piece of Game.playerPieces) {
+    for (const [id, piece] of Game.idToPiece) {
         if (outOfBounds(piece)) {
-            destroyPlayerPiece(piece);
-        }
-    }
-    for (const piece of Game.opponentPieces) {
-        if (outOfBounds(piece)) {
-            destroyOpponentPiece(piece);
+            // remove the piece id in the player or opponent data
+            if (Game.opponentPieceIds.has(id)) {
+                Game.opponentPieceIds.delete(id);
+            } else {
+                Game.playerPieceIds.delete(id);
+            }
+            destroyPiece(piece);
         }
     }
 };
@@ -185,17 +190,6 @@ const outOfBounds = (piece) => {
     return false;
 };
 
-const destroyPlayerPiece = (piece) => {
-    Game.playerPieces.delete(piece);
-    Composite.remove(world, piece);
-    destroyPiece(piece);
-};
-
-const destroyOpponentPiece = (piece) => {
-    Game.opponentPieces.delete(piece);
-    destroyPiece(piece);
-};
-
 const destroyPiece = (piece) => {
     Composite.remove(world, piece);
 };
@@ -203,19 +197,20 @@ const destroyPiece = (piece) => {
 const destroySensors = () => {
     for (const [
         sensor,
-        _piece, // eslint-disable-line no-unused-vars
-    ] of Game.sensorToPiece.entries()) {
+        _id, // eslint-disable-line no-unused-vars
+    ] of Game.sensorToPieceId.entries()) {
         Composite.remove(world, sensor);
     }
 
     // prepare the Game state to receive the sensors in the next round
-    Game.sensorToPiece = new Map();
+    Game.sensorToPieceId = new Map();
 };
 
 const createSensors = () => {
-    for (const piece of Game.playerPieces) {
-        const sensor = createSensor(piece, P1);
-        Game.sensorToPiece.set(sensor, piece);
+    for (const id of Game.playerPieceIds) {
+        console.log(pieceOfId(id));
+        const sensor = createSensor(pieceOfId(id), P1);
+        Game.sensorToPieceId.set(sensor, id);
     }
 };
 
@@ -227,7 +222,7 @@ const storeLaunchVec = (piece, end) => {
         x: end.x - start.x,
         y: end.y - start.y,
     });
-    Game.pieceToLaunchVec.set(piece, vel);
+    Game.pieceIdToLaunchVec.set(piece.id, vel);
 };
 
 // returns the velocity vector capped to the maximum launch speed
@@ -248,14 +243,15 @@ const calcLaunchVec = (vel) => {
 };
 
 // The starting and ending position of the arrow of the form: {x, y}
-const renderArrow = (start, end) => {
+const renderArrow = (piece, end) => {
+    const start = piece.position;
     console.log(
         calcLaunchVec({ x: end.x - start.x, y: end.y - start.y }),
     );
 };
 
-const createPlayerPieces = () => {
-    const playerPieces = new Set([
+const createPieces = () => {
+    const pieces = [
         createPiece(SCREEN_W / 4, SCREEN_H / 4, {
             fillStyle: P1_COLOR,
         }),
@@ -265,16 +261,6 @@ const createPlayerPieces = () => {
         createPiece(SCREEN_W / 8, SCREEN_H / 2, {
             fillStyle: P1_COLOR,
         }),
-    ]);
-
-    for (const piece of playerPieces) {
-        Game.idToPlayerPiece.set(piece.id, piece);
-    }
-    Game.playerPieces = playerPieces;
-};
-
-const createOpponentPieces = () => {
-    const opponentPieces = new Set([
         createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4, {
             fillStyle: P2_COLOR,
         }),
@@ -284,17 +270,22 @@ const createOpponentPieces = () => {
         createPiece((SCREEN_W * 7) / 8, SCREEN_H / 2, {
             fillStyle: P2_COLOR,
         }),
-    ]);
-    for (const piece of opponentPieces) {
-        Game.idToPlayerPiece.set(piece.id, piece);
+    ];
+
+    for (const piece of pieces) {
+        Game.idToPiece.set(piece.id, piece);
     }
-    Game.opponentPieces = opponentPieces;
+};
+
+const assignPieces = function () {
+    Game.playerPieceIds = new Set([1, 2, 3]);
+    Game.opponentPieceIds = new Set([4, 5, 6]);
 };
 
 const createBodies = function () {
-    createPlayerPieces();
+    createPieces();
+    assignPieces();
     createSensors();
-    createOpponentPieces();
 };
 
 // creates a piece at the location (x, y) and with the render applied
@@ -327,8 +318,8 @@ const createSensor = function (piece, player) {
         },
     });
 
-    // link the sensor to its corresponding piece
-    Game.sensorToPiece.set(sensor, piece);
+    // link the sensor to the id of its corresponding piece
+    Game.sensorToPieceId.set(sensor, piece.id);
 
     Composite.add(world, sensor);
 
