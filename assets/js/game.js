@@ -279,7 +279,6 @@ const calcLaunchVec = (vel) => {
     return vel;
 };
 
-// The starting and ending position of the arrow of the form: {x, y}
 const renderArrow = (piece, end) => {
     const start = piece.position;
     console.log(
@@ -325,7 +324,6 @@ const createBodies = function () {
     createSensors();
 };
 
-// creates a piece at the location (x, y) and with the render applied
 const createPiece = function (x, y, render = {}) {
     const piece = Bodies.circle(x, y, PIECE_R, {
         restitution: 0.5,
@@ -338,9 +336,6 @@ const createPiece = function (x, y, render = {}) {
     return piece;
 };
 
-// Creates a sensor, and adds it to the Composite with the same size and location as the `piece`
-// The sensor will have have its collision filter group and category set to the `player`
-// The sensor created is returned
 const createSensor = function (piece, player) {
     const position = piece.position;
     const sensor = Bodies.circle(position.x, position.y, PIECE_R, {
