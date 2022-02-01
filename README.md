@@ -17,7 +17,7 @@ A good way to see how the client and server interact is by going through a coupl
 1. Server starts the game with multiple clients and information on the starting location of their balls.
 2. The clients choose launch vectors for each of their balls.
 3. The client caps the launch vectors to a pre-determined maximum magnitude in case a client tried to cheat by value that was too big.
-4. The clients sends their vectors and ball locations to the server.
+4. The clients send their vectors and ball locations to the server.
 5. The server sends out all vectors of the client's opponent to each client ,with the current location of the balls that the server has.
 6. The clients use the launch vectors and ball locations from the server to animate the game state updating.
    This way, if a bad actor tried changing the local location of the balls before the simulation occurs, it will have no effect.
@@ -36,16 +36,15 @@ With this system, none of the simulation code has to be run on the server. This 
 
 Plan 1:
 
-1. Pieces are assigned `collisionFilters` that correspond to the player that controls them.
+1. Pieces are assigned `collisionFilters` that correspond to the player that controls while still allowing all pieces to collide with each other.
 2. Each player's mouse is assigned their unique `collisionFilter` to correspond to the pieces they can set the launch vector for.
-3. At the beginning of the round, all pieces start off as being set to `static`.
+3. At the beginning of the round, all pieces start off as being set to `static` = true.
 4. Players drag their launch vectors into place.
 5. Once time is up:
     1. The `collisionFilter` of the mice are changed so that they are no longer matching the pieces.
-    2. The `collisionFilter` of each piece is set such that pieces can collide with each other.
-    3. The `static` property of each piece is set to false
-    4. The pieces are launched
-6. Once pieces have stopped moving, return to step `1`
+    2. The `static` property of each piece is set to false
+    3. The pieces are launched
+6. Once pieces have stopped moving, return to step `3`
 
 Plan 2:
 
@@ -58,7 +57,7 @@ Plan 2:
     2. The pieces are launched
 6. Once pieces have stopped moving, return to step `3`
 
-In the end, plan 2 was used because it had the least amount of things to change and keep track of each round.
+In the app, the algorithm outlined in `plan 2` was used because it had the least amount of things to change and keep track of each round.
 
 ## Assigning Pieces Owned by each Client
 
@@ -75,6 +74,6 @@ The current plan to assign which pieces each client owns is the following:
 - [ ] Elixir server
 - [ ] Database that stores games
 - [ ] Allow players to create account
-- [ ] Allow players to save custom skin
+- [ ] Allow players to save favorite color as skin
 - [ ] Add CI/CL pipelines
 - [ ] md book

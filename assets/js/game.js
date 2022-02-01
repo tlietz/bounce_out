@@ -16,6 +16,9 @@ const MAX_LAUNCH_SQUARED = MAX_LAUNCH * MAX_LAUNCH;
 // The value of the collision category and collision mask of player's mouse.
 const P1 = 0x0002;
 
+// The length of each grouping sent to server
+const PACKET_LENGTH = 3;
+
 const P1_COLOR = "green";
 const P2_COLOR = "purple";
 
@@ -157,7 +160,7 @@ const launch = () => {
 
 // Deserializes the array and adds the results to the map
 const desArrAddToMap = (map, arr) => {
-    for (let i = 0; i < arr.length; i += 3) {
+    for (let i = 0; i < arr.length; i += PACKET_LENGTH) {
         const pieceId = arr[i];
         const launchVec = { x: arr[i + 1], y: arr[i + 2] };
         map.set(pieceId, launchVec);
@@ -171,7 +174,9 @@ const desArrAddToMap = (map, arr) => {
 // of the corresponding piece.
 const serLaunchVec = (pieceIdToLaunchVec) => {
     // make an array with enough room to serialize the launch vector map.
-    let launchVecArr = Array(3 * pieceIdToLaunchVec.size);
+    let launchVecArr = Array(
+        PACKET_LENGTH * pieceIdToLaunchVec.size,
+    );
 
     let i = 0;
     for (const [id, launchVec] of pieceIdToLaunchVec) {
