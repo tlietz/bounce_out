@@ -51,6 +51,7 @@ var Game = {
     pieceIdToLaunchVec: new Map(),
     // holds sensors to the id of the pieces they correspond to
     sensorToPieceId: new Map(),
+    arrows: [],
 };
 
 // create an engine with no gravity
@@ -150,16 +151,17 @@ const pieceOfId = (id) => {
 const launch = () => {
     destroySensors();
 
+    // stop runner so that all piece velocity vectors can be set.
     runner.enabled = false;
-
     for (var [id, launchVec] of Game.pieceIdToLaunchVec.entries()) {
         launchVec.x *= LAUNCH_MULT;
         launchVec.y *= LAUNCH_MULT;
         Body.setVelocity(pieceOfId(id), launchVec);
     }
+    // launch pieces simultaneously
+    runner.enabled = true;
 
     Game.pieceIdToLaunchVec = new Map();
-    runner.enabled = true;
     simulate();
 };
 
@@ -257,12 +259,12 @@ const createSensors = () => {
 };
 
 // piece is a `body`
-// `end` is of the form {x, y}
-const storeLaunchVec = (piece, end) => {
-    const start = piece.position;
+// `mousePos` is of the form {x, y}
+const storeLaunchVec = (piece, mousePos) => {
+    const piecePos = piece.position;
     let vel = calcLaunchVec({
-        x: end.x - start.x,
-        y: end.y - start.y,
+        x: mousePos.x - piecePos.x,
+        y: mousePos.y - piecePos.y,
     });
     Game.pieceIdToLaunchVec.set(piece.id, vel);
 };
@@ -284,29 +286,14 @@ const calcLaunchVec = (vel) => {
     return vel;
 };
 
-const renderArrow = (piece, end) => {
-    const start = piece.position;
-    const arrow = calcLaunchVec({
-        x: end.x - start.x,
-        y: end.y - start.y,
-    });
-    const canvas = document.querySelector("canvas");
-
-    if (!canvas.getContext) {
-        return;
-    }
-
-    const ctx = canvas.getContext("2d");
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 5;
-
-    ctx.beginPath();
-    ctx.moveTo(start.x, start.y);
-    ctx.lineTo(start.x + arrow.x, start.y + arrow.y);
-    ctx.stroke();
+const renderArrow = (piece, mousePos) => {
+    const piecePos = piece.position;
 
     console.log(
-        calcLaunchVec({ x: end.x - start.x, y: end.y - start.y }),
+        calcLaunchVec({
+            x: mousePos.x - piecePos.x,
+            y: mousePos.y - piecePos.y,
+        }),
     );
 };
 
