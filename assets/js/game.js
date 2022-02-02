@@ -47,11 +47,9 @@ var Game = {
     idToPiece: new Map(),
     playerPieceIds: new Set(),
     opponentPieceIds: new Set(),
-    // stores the launch vector for each of the pieces.
     pieceIdToLaunchVec: new Map(),
-    // holds sensors to the id of the pieces they correspond to
     sensorToPieceId: new Map(),
-    arrows: [],
+    pieceIdToArrow: new Map(),
 };
 
 // create an engine with no gravity
@@ -104,6 +102,17 @@ export function startGame() {
     Events.on(mouseConstraint, "mousedown", () => {
         const sensor = mouseConstraint.body;
         Game.selectedPieceId = Game.sensorToPieceId.get(sensor);
+        if (Game.selectedPieceId) {
+            const id = Game.selectedPieceId;
+            Game.pieceIdToArrow.set(
+                id,
+                createArrow(mouseConstraint.mouse.position),
+            );
+            renderArrow(
+                pieceOfId(id),
+                mouseConstraint.mouse.position,
+            );
+        }
     });
 
     Events.on(mouseConstraint, "mousemove", () => {
@@ -142,6 +151,20 @@ export function startGame() {
         }
     };
 }
+
+const createArrow = (mousePos) => {
+    const arrow = Bodies.rectangle(mousePos.x, mousePos.y, 10, 10, {
+        isStatic: true,
+        isSensor: true,
+        render: {
+            fillStyle: "red",
+        },
+    });
+
+    Composite.add(world, arrow);
+
+    return arrow;
+};
 
 // returns the piece corresponding to the `id` parameter
 const pieceOfId = (id) => {
