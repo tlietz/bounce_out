@@ -150,7 +150,7 @@ const pieceOfId = (id) => {
 const launch = () => {
     destroySensors();
 
-    render.enabled = false;
+    runner.enabled = false;
 
     for (var [id, launchVec] of Game.pieceIdToLaunchVec.entries()) {
         launchVec.x *= LAUNCH_MULT;
@@ -158,9 +158,8 @@ const launch = () => {
         Body.setVelocity(pieceOfId(id), launchVec);
     }
 
-    render.enabled = true;
-
     Game.pieceIdToLaunchVec = new Map();
+    runner.enabled = true;
     simulate();
 };
 
