@@ -113,6 +113,7 @@ export function startGame() {
                 );
             }
             renderArrow(
+                Game.pieceIdToArrow.get(id),
                 pieceOfId(id),
                 mouseConstraint.mouse.position,
             );
@@ -123,6 +124,7 @@ export function startGame() {
         const selectedPiece = pieceOfId(Game.selectedPieceId);
         if (selectedPiece) {
             renderArrow(
+                Game.pieceIdToArrow.get(Game.selectedPieceId),
                 selectedPiece,
                 mouseConstraint.mouse.position,
             );
@@ -312,15 +314,17 @@ const calcLaunchVec = (vel) => {
     return vel;
 };
 
-const renderArrow = (piece, mousePos) => {
+const renderArrow = (arrow, piece, mousePos) => {
     const piecePos = piece.position;
-
-    console.log(
-        calcLaunchVec({
-            x: mousePos.x - piecePos.x,
-            y: mousePos.y - piecePos.y,
-        }),
-    );
+    const launchVec = calcLaunchVec({
+        x: mousePos.x - piecePos.x,
+        y: mousePos.y - piecePos.y,
+    });
+    const arrowPos = {
+        x: launchVec.x + piecePos.x,
+        y: launchVec.y + piecePos.y,
+    };
+    Body.setPosition(arrow, arrowPos);
 };
 
 const createPieces = () => {
