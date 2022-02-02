@@ -178,6 +178,7 @@ const pieceOfId = (id) => {
 
 const launch = () => {
     destroySensors();
+    destroyArrows();
 
     // stop runner so that all piece velocity vectors can be set.
     runner.enabled = false;
@@ -265,6 +266,18 @@ const outOfBounds = (piece) => {
 
 const destroyPiece = (piece) => {
     Composite.remove(world, piece);
+};
+
+const destroyArrows = () => {
+    for (const [
+        _id, // eslint-disable-line no-unused-vars
+        arrow,
+    ] of Game.pieceIdToArrow.entries()) {
+        Composite.remove(world, arrow);
+    }
+
+    // prepare the Game state to receive the sensors in the next round
+    Game.pieceIdToArrow = new Map();
 };
 
 const destroySensors = () => {
