@@ -58,26 +58,26 @@ var engine = Engine.create(),
     world = engine.world;
 engine.gravity.y = 0;
 
-export function startGame() {
-    // create a renderer
-    var render = Render.create({
-        element: document.body,
-        engine: engine,
-        options: {
-            width: SCREEN_W,
-            height: SCREEN_H,
-            wireframes: false,
-        },
-    });
+var render = Render.create({
+    element: document.body,
+    engine: engine,
+    options: {
+        width: SCREEN_W,
+        height: SCREEN_H,
+        wireframes: false,
+    },
+});
 
+// create runner
+var runner = Runner.create();
+
+export function startGame() {
     // add all of the bodies to the world
     createBodies();
 
     // run the renderer
     Render.run(render);
 
-    // create runner
-    var runner = Runner.create();
     // run the engine
     Runner.run(runner, engine);
 
@@ -281,6 +281,25 @@ const calcLaunchVec = (vel) => {
 
 const renderArrow = (piece, end) => {
     const start = piece.position;
+    const arrow = calcLaunchVec({
+        x: end.x - start.x,
+        y: end.y - start.y,
+    });
+    const canvas = document.querySelector("canvas");
+
+    if (!canvas.getContext) {
+        return;
+    }
+
+    const ctx = canvas.getContext("2d");
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 5;
+
+    ctx.beginPath();
+    ctx.moveTo(start.x, start.y);
+    ctx.lineTo(start.x + arrow.x, start.y + arrow.y);
+    ctx.stroke();
+
     console.log(
         calcLaunchVec({ x: end.x - start.x, y: end.y - start.y }),
     );
