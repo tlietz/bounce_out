@@ -104,10 +104,14 @@ export function startGame() {
         Game.selectedPieceId = Game.sensorToPieceId.get(sensor);
         if (Game.selectedPieceId) {
             const id = Game.selectedPieceId;
-            Game.pieceIdToArrow.set(
-                id,
-                createArrow(mouseConstraint.mouse.position),
-            );
+
+            if (!Game.pieceIdToArrow.has(id)) {
+                // create arrow
+                Game.pieceIdToArrow.set(
+                    id,
+                    createArrow(mouseConstraint.mouse.position),
+                );
+            }
             renderArrow(
                 pieceOfId(id),
                 mouseConstraint.mouse.position,
@@ -154,7 +158,6 @@ export function startGame() {
 
 const createArrow = (mousePos) => {
     const arrow = Bodies.rectangle(mousePos.x, mousePos.y, 10, 10, {
-        isStatic: true,
         isSensor: true,
         render: {
             fillStyle: "red",
