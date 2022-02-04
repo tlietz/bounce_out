@@ -10,7 +10,7 @@ defmodule BounceOut.Impl.Game do
   )
 
   @spec new_game :: t
-  def new_game do
+  def new_game() do
     %__MODULE__{}
   end
 
