@@ -1,10 +1,13 @@
 defmodule BounceOutWeb.GameChannel do
   use BounceOutWeb, :channel
 
+  alias BounceOut.Impl.Game
+
   @impl true
   def join("game:lobby", payload, socket) do
     if authorized?(payload) do
-      {:ok, 1, socket}
+      player = Game.new_game() |> Game.new_player() |> Game.get_player()
+      {:ok, player, socket}
     else
       {:error, %{reason: "unauthorized"}}
     end
