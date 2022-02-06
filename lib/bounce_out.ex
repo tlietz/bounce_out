@@ -1,9 +1,11 @@
 defmodule BounceOut do
   @moduledoc """
-  BounceOut keeps the contexts that define your domain
-  and business logic.
-
-  Contexts are also responsible for managing your data, regardless
-  if it comes from the database, an external API or others.
+  The server's public API of the Bounce Out game.
   """
+
+  defdelegate new_game(), to: BounceOut.Impl.Game
+
+  defdelegate new_player(game), to: BounceOut.Impl.Game
+
+  defdelegate get_player(game), to: BounceOut.Impl.Game
 end

@@ -19,8 +19,15 @@ const P1 = 0x0002;
 // The length of each grouping sent to server
 const PACKET_LENGTH = 3;
 
+const PLAYER_PIECES = 3;
+
 const P1_COLOR = "green";
 const P2_COLOR = "purple";
+
+const P_COLORS = [P1_COLOR, P2_COLOR];
+
+// set initialized when player joins lobby
+let P_COLOR = "";
 
 // module aliases
 var Engine = Matter.Engine,
@@ -50,6 +57,7 @@ var Game = {
     pieceIdToLaunchVec: new Map(),
     sensorToPieceId: new Map(),
     pieceIdToArrow: new Map(),
+    playerId: 0,
 };
 
 // create an engine with no gravity
@@ -71,8 +79,7 @@ var render = Render.create({
 var runner = Runner.create();
 
 export function startGame() {
-    // add all of the bodies to the world
-    createBodies();
+    createPieces();
 
     // run the renderer
     Render.run(render);
@@ -146,7 +153,6 @@ export function startGame() {
 
     channel.on("launchVecs", (payload) => {
         desArrAddToMap(Game.pieceIdToLaunchVec, payload.body);
-        console.log(payload.body);
         launch();
     });
 
@@ -343,39 +349,28 @@ const renderArrow = (arrow, piece, mousePos) => {
 const createPieces = () => {
     const pieces = [
         createPiece(SCREEN_W / 4, SCREEN_H / 4, {
-            fillStyle: P1_COLOR,
+            fillStyle: P_COLORS[0],
         }),
         createPiece(SCREEN_W / 4, (SCREEN_H * 3) / 4, {
-            fillStyle: P1_COLOR,
+            fillStyle: P_COLORS[0],
         }),
         createPiece(SCREEN_W / 8, SCREEN_H / 2, {
-            fillStyle: P1_COLOR,
+            fillStyle: P_COLORS[0],
         }),
         createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4, {
-            fillStyle: P2_COLOR,
+            fillStyle: P_COLORS[1],
         }),
         createPiece((SCREEN_W * 3) / 4, (SCREEN_H * 3) / 4, {
-            fillStyle: P2_COLOR,
+            fillStyle: P_COLORS[1],
         }),
         createPiece((SCREEN_W * 7) / 8, SCREEN_H / 2, {
-            fillStyle: P2_COLOR,
+            fillStyle: P_COLORS[1],
         }),
     ];
 
     for (const piece of pieces) {
         Game.idToPiece.set(piece.id, piece);
     }
-};
-
-const assignPieces = function () {
-    Game.playerPieceIds = new Set([1, 2, 3]);
-    Game.opponentPieceIds = new Set([4, 5, 6]);
-};
-
-const createBodies = function () {
-    createPieces();
-    assignPieces();
-    createSensors();
 };
 
 const createPiece = function (x, y, render = {}) {
@@ -400,7 +395,7 @@ const createSensor = function (piece, player) {
             mask: player,
         },
         render: {
-            fillStyle: P1_COLOR,
+            fillStyle: P_COLOR,
         },
     });
 
@@ -411,3 +406,31 @@ const createSensor = function (piece, player) {
 
     return sensor;
 };
+
+const assignPieces = function (Game, playerId, players) {
+    let pieceIds = allPieceIdArr(players);
+    Game.playerPieceIds = setPlayerPieces(playerId, pieceIds);
+    Game.opponentPieceIds = new Set(pieceIds);
+};
+
+const setPlayerPieces = (playerId, allPieceIdArr) => {
+    return new Set(
+        allPieceIdArr.splice(
+            PLAYER_PIECES * (playerId - 1),
+            PLAYER_PIECES,
+        ),
+    );
+};
+
+const allPieceIdArr = (players) => {
+    return Array.from(
+        { length: players * PLAYER_PIECES },
+        (_, idx) => ++idx,
+    );
+};
+
+export function playerSetup(playerId, players) {
+    assignPieces(Game, playerId, players);
+    P_COLOR = P_COLORS[playerId - 1];
+    createSensors();
+}
