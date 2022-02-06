@@ -79,8 +79,7 @@ var render = Render.create({
 var runner = Runner.create();
 
 export function startGame() {
-    // add all of the bodies to the world
-    createBodies();
+    createPieces();
 
     // run the renderer
     Render.run(render);
@@ -154,7 +153,6 @@ export function startGame() {
 
     channel.on("launchVecs", (payload) => {
         desArrAddToMap(Game.pieceIdToLaunchVec, payload.body);
-        console.log(payload.body);
         launch();
     });
 
@@ -351,32 +349,28 @@ const renderArrow = (arrow, piece, mousePos) => {
 const createPieces = () => {
     const pieces = [
         createPiece(SCREEN_W / 4, SCREEN_H / 4, {
-            fillStyle: P1_COLOR,
+            fillStyle: P_COLORS[0],
         }),
         createPiece(SCREEN_W / 4, (SCREEN_H * 3) / 4, {
-            fillStyle: P1_COLOR,
+            fillStyle: P_COLORS[0],
         }),
         createPiece(SCREEN_W / 8, SCREEN_H / 2, {
-            fillStyle: P1_COLOR,
+            fillStyle: P_COLORS[0],
         }),
         createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4, {
-            fillStyle: P2_COLOR,
+            fillStyle: P_COLORS[1],
         }),
         createPiece((SCREEN_W * 3) / 4, (SCREEN_H * 3) / 4, {
-            fillStyle: P2_COLOR,
+            fillStyle: P_COLORS[1],
         }),
         createPiece((SCREEN_W * 7) / 8, SCREEN_H / 2, {
-            fillStyle: P2_COLOR,
+            fillStyle: P_COLORS[1],
         }),
     ];
 
     for (const piece of pieces) {
         Game.idToPiece.set(piece.id, piece);
     }
-};
-
-const createBodies = function () {
-    createPieces();
 };
 
 const createPiece = function (x, y, render = {}) {
@@ -417,8 +411,6 @@ const assignPieces = function (Game, playerId, players) {
     let pieceIds = allPieceIdArr(players);
     Game.playerPieceIds = setPlayerPieces(playerId, pieceIds);
     Game.opponentPieceIds = new Set(pieceIds);
-    console.log(Game.playerPieceIds);
-    console.log(Game.opponentPieceIds);
 };
 
 const setPlayerPieces = (playerId, allPieceIdArr) => {
@@ -437,7 +429,7 @@ const allPieceIdArr = (players) => {
     );
 };
 
-export function setPlayer(playerId, players) {
+export function playerSetup(playerId, players) {
     assignPieces(Game, playerId, players);
     P_COLOR = P_COLORS[playerId - 1];
     createSensors();

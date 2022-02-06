@@ -63,8 +63,7 @@ export let channel = socket.channel("game:lobby", {});
 channel
     .join()
     .receive("ok", (resp) => {
-        Game.setPlayer(resp.playerId, resp.players);
-        console.log("", resp);
+        Game.playerSetup(resp.playerId, resp.players);
     })
     .receive("error", (resp) => {
         console.log("Unable to join", resp);
