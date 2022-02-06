@@ -9,7 +9,7 @@ defmodule BounceOut.Impl.Game do
     max_players: 2
   )
 
-  @spec new_game :: t
+  @spec new_game() :: t
   def new_game() do
     %__MODULE__{}
   end
