@@ -32,5 +32,7 @@ bounce_out-*.tar
 npm-debug.log
 /assets/node_modules/
 
+*.beam
+/config/*.secret.exs
 /.elixir_ls
 
