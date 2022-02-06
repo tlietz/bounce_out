@@ -4,7 +4,8 @@ defmodule BounceOutWeb.GameChannel do
   @impl true
   def join("game:lobby", payload, socket) do
     if authorized?(payload) do
-      {:ok, %{playerId: 2, players: 2}, socket}
+      game = BounceOut.new_game() |> BounceOut.new_player() |> BounceOut.get_game()
+      {:ok, %{playerId: game.players, players: game.max_players}, socket}
     else
       {:error, %{reason: "unauthorized"}}
     end

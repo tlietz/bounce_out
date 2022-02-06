@@ -23,4 +23,8 @@ defmodule BounceOut.Impl.Game do
   def get_player(game) do
     game.players
   end
+
+  def get_game(game) do
+    game
+  end
 end

@@ -410,6 +410,7 @@ const createSensor = function (piece, player) {
 const assignPieces = function (Game, playerId, players) {
     let pieceIds = allPieceIdArr(players);
     Game.playerPieceIds = setPlayerPieces(playerId, pieceIds);
+    console.log(Game.playerPieceIds);
     Game.opponentPieceIds = new Set(pieceIds);
 };
 
