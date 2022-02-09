@@ -4,10 +4,9 @@ defmodule BounceOut do
   """
   alias BounceOut.Runtime.Server, as: GameServer
 
-  @spec new_game :: {:error, any} | pid
+  @spec new_game :: {:error, any} | {:ok, pid}
   def new_game() do
-    {:ok, pid} = GameServer.start_link({})
-    pid
+    GameServer.start_link({})
   end
 
   defdelegate new_player(game_agent), to: GameServer

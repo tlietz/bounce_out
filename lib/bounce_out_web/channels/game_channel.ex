@@ -4,7 +4,9 @@ defmodule BounceOutWeb.GameChannel do
   @impl true
   def join("game:lobby", payload, socket) do
     if authorized?(payload) do
-      game = BounceOut.new_game() |> BounceOut.new_player() |> BounceOut.get_game()
+      {:ok, game_id} = BounceOut.new_game()
+      game = game_id |> BounceOut.new_player() |> BounceOut.get_game()
+
       {:ok, %{playerId: game.players, players: game.max_players}, socket}
     else
       {:error, %{reason: "unauthorized"}}
@@ -17,6 +19,7 @@ defmodule BounceOutWeb.GameChannel do
   end
 
   def handle_in("launchVecs", payload, socket) do
+    print_id(socket)
     broadcast_from!(socket, "launchVecs", payload)
     {:noreply, socket}
   end
@@ -24,5 +27,9 @@ defmodule BounceOutWeb.GameChannel do
   # Add authorization logic here as required.
   defp authorized?(_payload) do
     true
+  end
+
+  defp print_id(socket) do
+    IO.puts("SOCKET: #{inspect(socket)}\n\n")
   end
 end
