@@ -5,6 +5,7 @@ defmodule BounceOut.Application do
 
   use Application
 
+
   @impl true
   def start(_type, _args) do
     children = [
@@ -18,6 +19,7 @@ defmodule BounceOut.Application do
       BounceOutWeb.Endpoint
       # Start a worker by calling: BounceOut.Worker.start_link(arg)
       # {BounceOut.Worker, arg}
+      BounceOut.GameStarter
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

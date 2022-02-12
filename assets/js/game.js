@@ -53,7 +53,6 @@ var Game = {
     pieceIdToLaunchVec: new Map(),
     sensorToPieceId: new Map(),
     pieceIdToArrow: new Map(),
-    playerId: 0,
 };
 
 // create an engine with no gravity
