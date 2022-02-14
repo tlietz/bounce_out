@@ -16,10 +16,10 @@ defmodule BounceOut.Impl.Game do
 
   @spec new_player(t) :: t
   def new_player(game) do
-    if game.players >= game.max_players do
-      game
-    else
+    if game.players < game.max_players do
       %{game | players: game.players + 1}
+    else
+      game
     end
   end
 

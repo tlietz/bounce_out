@@ -4,7 +4,7 @@ defmodule BounceOut.Runtime.Server do
   use Agent
 
   def start_link(_opts) do
-    Agent.start_link(fn -> Game.new_game() end)
+    Agent.start_link(fn -> Game.new_game() end, name: :game1)
   end
 
   def new_player(game_agent) do

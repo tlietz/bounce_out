@@ -24,6 +24,9 @@ defmodule BounceOutWeb.GameChannel do
     {:noreply, socket}
   end
 
+  def handle_in("newGame", _payload, _socket) do
+  end
+
   # Add authorization logic here as required.
   defp authorized?(_payload) do
     true
