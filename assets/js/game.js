@@ -151,13 +151,21 @@ export function startGame() {
         launch();
     });
 
+    channel.on("sendLaunchVecs", () => {
+        sendLaunchVecs();
+        launch();
+    });
+
     document.body.onkeyup = function (e) {
         if (e.key == " ") {
-            sendLaunchVecs();
-            launch();
+            notifyLaunch();
         }
     };
 }
+
+const notifyLaunch = () => {
+    channel.push("notifyLaunch");
+};
 
 const createArrow = (mousePos) => {
     const arrow = Bodies.rectangle(mousePos.x, mousePos.y, 10, 10, {
@@ -230,7 +238,7 @@ const serLaunchVec = (pieceIdToLaunchVec) => {
 const sendLaunchVecs = () => {
     // Transform the launch vec map into an array because it is compatible with the server.
     const launchVecArr = serLaunchVec(Game.pieceIdToLaunchVec);
-    channel.push("launchVecs", { body: launchVecArr });
+    channel.push("sendLaunchVecs", { body: launchVecArr });
 };
 
 const simulate = () => {
