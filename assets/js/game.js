@@ -153,7 +153,6 @@ export function startGame() {
 
     channel.on("sendLaunchVecs", () => {
         sendLaunchVecs();
-        launch();
     });
 
     document.body.onkeyup = function (e) {
