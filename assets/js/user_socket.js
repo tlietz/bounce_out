@@ -64,7 +64,7 @@ channel
     .join()
     .receive("ok", (resp) => {
         Game.playerSetup(resp.playerId, resp.players);
-        console.log(resp);
+        console.log("Resp: ", resp);
     })
     .receive("error", (resp) => {
         console.log("Unable to join", resp);

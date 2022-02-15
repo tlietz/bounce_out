@@ -3,13 +3,13 @@ defmodule BounceOut.Runtime.Server do
 
   use Agent
 
+  @spec start_link(any) :: {:error, any} | {:ok, pid}
   def start_link(_opts) do
     Agent.start_link(fn -> Game.new_game() end, name: :game1)
   end
 
   def new_player(game_agent) do
     Agent.update(game_agent, &Game.new_player(&1))
-    game_agent
   end
 
   def get_player(game_agent) do

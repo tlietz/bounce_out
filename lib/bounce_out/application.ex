@@ -15,9 +15,9 @@ defmodule BounceOut.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: BounceOut.PubSub},
       # Start the Endpoint (http/https)
-      BounceOutWeb.Endpoint
+      BounceOutWeb.Endpoint,
       # Start a worker by calling: BounceOut.Worker.start_link(arg)
-      # {BounceOut.Worker, arg}
+      {BounceOut.Runtime.Server, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

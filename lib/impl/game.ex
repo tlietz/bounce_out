@@ -19,7 +19,7 @@ defmodule BounceOut.Impl.Game do
     if game.players < game.max_players do
       %{game | players: game.players + 1}
     else
-      game
+      %{game | players: 1}
     end
   end
 
