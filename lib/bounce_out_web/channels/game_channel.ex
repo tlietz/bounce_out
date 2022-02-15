@@ -9,7 +9,6 @@ defmodule BounceOutWeb.GameChannel do
       game = BounceOut.get_game(:game1)
 
       {:ok, %{playerId: game.players, players: game.max_players}, socket}
-      # {:ok, %{playerId: 1, players: 2}, socket}
     else
       {:error, %{reason: "unauthorized"}}
     end
@@ -33,9 +32,5 @@ defmodule BounceOutWeb.GameChannel do
   # Add authorization logic here as required.
   defp authorized?(_payload) do
     true
-  end
-
-  defp print_id(socket) do
-    IO.puts("SOCKET: #{inspect(socket)}\n\n")
   end
 end

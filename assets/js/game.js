@@ -425,6 +425,7 @@ const setPlayerPieces = (playerId, allPieceIdArr) => {
     );
 };
 
+// allPieceIdArr makes an array starting at 0 incrementing until the total number of pieces
 const allPieceIdArr = (players) => {
     return Array.from(
         { length: players * PLAYER_PIECES },
