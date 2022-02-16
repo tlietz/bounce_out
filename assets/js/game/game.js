@@ -31,9 +31,6 @@ var Engine = Matter.Engine,
     Bodies = Matter.Bodies,
     Events = Matter.Events;
 
-// TODO: refactor into an ECS where all pieces are held in one array, then the opponent and player pieces will be tracked through an index to the piece array.
-// TODO: make the piece into a class or object to implement the ECS system.
-
 var Game = {
     // 0 when no piece is selected
     selectedPieceId: 0,
