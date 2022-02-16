@@ -59,6 +59,8 @@ const createPiece = function (x, y, world, render = {}) {
     return piece;
 };
 
+// Depends on pieces being assigned to their respective players.
+// When using to initialize a game, need to assign pieces in game state first.
 export const createSensors = (game) => {
     for (const id of game.playerPieceIds) {
         const sensor = createSensor(

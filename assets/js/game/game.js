@@ -34,8 +34,28 @@ var Engine = Matter.Engine,
     Events = Matter.Events;
 
 class Game {
-    constructor(world, render, runner, engine) {
-        this.world = world;
+    constructor() {
+        // create an engine with no gravity
+        var engine = Engine.create();
+        engine.gravity.y = 0;
+
+        var render = Render.create({
+            element: document.body,
+            engine: engine,
+            options: {
+                width: SCREEN_W,
+                height: SCREEN_H,
+                wireframes: false,
+            },
+        });
+
+        var runner = Runner.create();
+        // run the renderer
+        Render.run(render);
+
+        // run the engine
+        Runner.run(runner, engine);
+        this.world = engine.world;
         this.render = render;
         this.runner = runner;
         this.engine = engine;
@@ -47,12 +67,6 @@ class Game {
         this.pieceIdToLaunchVec = new Map();
         this.sensorToPieceId = new Map();
         this.pieceIdToArrow = new Map();
-
-        // run the renderer
-        Render.run(render);
-
-        // run the engine
-        Runner.run(runner, engine);
     }
 
     pieceOfId(id) {
@@ -60,29 +74,15 @@ class Game {
     }
 }
 
-// create an engine with no gravity
-var engine = Engine.create();
-engine.gravity.y = 0;
+export function startGame(playerId, players) {
+    var game = new Game();
 
-var render = Render.create({
-    element: document.body,
-    engine: engine,
-    options: {
-        width: SCREEN_W,
-        height: SCREEN_H,
-        wireframes: false,
-    },
-});
-
-// create runner
-var runner = Runner.create();
-var game = new Game(engine.world, render, runner, engine);
-
-export function startGame() {
     createPieces(game);
+    assignPieces(game, playerId, players);
+    createSensors(game);
 
     // add mouse control
-    var mouse = Mouse.create(render.canvas),
+    var mouse = Mouse.create(game.render.canvas),
         mouseConstraint = MouseConstraint.create(game.engine, {
             mouse: mouse,
             constraint: {
@@ -141,6 +141,7 @@ export function startGame() {
             storeLaunchVec(
                 selectedPiece,
                 mouseConstraint.mouse.position,
+                game,
             );
         }
         game.selectedPieceId = 0;
@@ -150,11 +151,11 @@ export function startGame() {
 
     channel.on("launchVecs", (payload) => {
         desArrAddToMap(game.pieceIdToLaunchVec, payload.body);
-        launch();
+        launch(game);
     });
 
     channel.on("sendLaunchVecs", () => {
-        sendLaunchVecs();
+        sendLaunchVecs(game);
     });
 
     document.body.onkeyup = function (e) {
@@ -168,39 +169,39 @@ const notifyLaunch = () => {
     channel.push("notifyLaunch");
 };
 
-const launch = () => {
+const launch = (game) => {
     destroySensors(game);
     destroyArrows(game);
 
     // stop runner so that all piece velocity vectors can be set.
-    runner.enabled = false;
+    game.runner.enabled = false;
     for (var [id, launchVec] of game.pieceIdToLaunchVec.entries()) {
         launchVec.x *= LAUNCH_MULT;
         launchVec.y *= LAUNCH_MULT;
         Body.setVelocity(game.pieceOfId(id), launchVec);
     }
     // launch pieces simultaneously
-    runner.enabled = true;
+    game.runner.enabled = true;
 
     game.pieceIdToLaunchVec = new Map();
-    simulate();
+    simulate(game);
 };
 
-const sendLaunchVecs = () => {
+const sendLaunchVecs = (game) => {
     // Transform the launch vec map into an array because it is compatible with the server.
     const launchVecArr = serLaunchVec(game.pieceIdToLaunchVec);
     channel.push("sendLaunchVecs", { body: launchVecArr });
 };
 
-const simulate = () => {
+const simulate = (game) => {
     setTimeout(function () {
-        outOfBoundsCheck();
+        outOfBoundsCheck(game);
         createSensors(game);
         console.log("sensors created");
     }, 5000);
 };
 
-const outOfBoundsCheck = () => {
+const outOfBoundsCheck = (game) => {
     for (const [id, piece] of game.idToPiece) {
         if (outOfBounds(piece)) {
             // remove the piece id in the player or opponent data
@@ -226,7 +227,7 @@ const outOfBounds = (piece) => {
 
 // piece is a `body`
 // `mousePos` is of the form {x, y}
-const storeLaunchVec = (piece, mousePos) => {
+const storeLaunchVec = (piece, mousePos, game) => {
     const piecePos = piece.position;
     let vel = calcLaunchVec({
         x: mousePos.x - piecePos.x,
@@ -288,8 +289,3 @@ const allPieceIdArr = (players) => {
         (_, idx) => ++idx,
     );
 };
-
-export function playerSetup(playerId, players) {
-    assignPieces(game, playerId, players);
-    createSensors(game);
-}
