@@ -34,10 +34,11 @@ var Engine = Matter.Engine,
     Events = Matter.Events;
 
 class Game {
-    constructor(world, render, runner) {
+    constructor(world, render, runner, engine) {
         this.world = world;
         this.render = render;
         this.runner = runner;
+        this.engine = engine;
         // 0 when no piece is selected
         this.selectedPieceId = 0;
         this.idToPiece = new Map();
@@ -69,7 +70,7 @@ var render = Render.create({
 
 // create runner
 var runner = Runner.create();
-var game = new Game(engine.world, render, runner);
+var game = new Game(engine.world, render, runner, engine);
 
 export function startGame() {
     createPieces(game);
@@ -78,11 +79,11 @@ export function startGame() {
     Render.run(game.render);
 
     // run the engine
-    Runner.run(game.runner, engine);
+    Runner.run(game.runner, game.engine);
 
     // add mouse control
     var mouse = Mouse.create(render.canvas),
-        mouseConstraint = MouseConstraint.create(engine, {
+        mouseConstraint = MouseConstraint.create(game.engine, {
             mouse: mouse,
             constraint: {
                 stiffness: 1,
