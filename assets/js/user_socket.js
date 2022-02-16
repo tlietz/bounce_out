@@ -63,7 +63,7 @@ export let channel = socket.channel("game:lobby", {});
 channel
     .join()
     .receive("ok", (resp) => {
-        Game.startGame(resp.playerId, resp.players);
+        Game.startGame(resp.playerId, resp.players, resp.gameState);
         console.log("Resp: ", resp);
     })
     .receive("error", (resp) => {

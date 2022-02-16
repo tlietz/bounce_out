@@ -34,7 +34,7 @@ var Engine = Matter.Engine,
     Events = Matter.Events;
 
 class Game {
-    constructor() {
+    constructor(gameState = 0) {
         // create an engine with no gravity
         var engine = Engine.create();
         engine.gravity.y = 0;
@@ -59,14 +59,18 @@ class Game {
         this.render = render;
         this.runner = runner;
         this.engine = engine;
+
         // 0 when no piece is selected
         this.selectedPieceId = 0;
-        this.idToPiece = new Map();
-        this.playerPieceIds = new Set();
-        this.opponentPieceIds = new Set();
-        this.pieceIdToLaunchVec = new Map();
-        this.sensorToPieceId = new Map();
-        this.pieceIdToArrow = new Map();
+
+        if (!gameState) {
+            this.idToPiece = new Map();
+            this.playerPieceIds = new Set();
+            this.opponentPieceIds = new Set();
+            this.pieceIdToLaunchVec = new Map();
+            this.sensorToPieceId = new Map();
+            this.pieceIdToArrow = new Map();
+        }
     }
 
     pieceOfId(id) {
@@ -74,8 +78,9 @@ class Game {
     }
 }
 
-export function startGame(playerId, players) {
-    var game = new Game();
+// TODO: ability to define the starting state of a game
+export function startGame(playerId, players, gameState) {
+    var game = new Game(gameState);
 
     createPieces(game);
     assignPieces(game, playerId, players);
