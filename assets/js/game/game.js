@@ -5,19 +5,18 @@ import { channel } from "../user_socket.js";
 import {
     SCREEN_H,
     SCREEN_W,
-    PIECE_R,
     LAUNCH_MULT,
     MAX_LAUNCH,
     MAX_LAUNCH_SQUARED,
     P_MASK,
     PLAYER_PIECES,
-    P_COLORS,
 } from "./constants.js";
 import { desArrAddToMap, serLaunchVec } from "./deserde.js";
 import {
     createArrow,
     destroyArrows,
     createSensors,
+    createPieces,
 } from "./createDestroy.js";
 
 // module aliases
@@ -28,7 +27,6 @@ var Engine = Matter.Engine,
     MouseConstraint = Matter.MouseConstraint,
     Mouse = Matter.Mouse,
     Body = Matter.Body,
-    Bodies = Matter.Bodies,
     Events = Matter.Events;
 
 class Game {
@@ -70,7 +68,7 @@ var render = Render.create({
 var runner = Runner.create();
 
 export function startGame() {
-    createPieces();
+    createPieces(game);
 
     // run the renderer
     Render.run(render);
@@ -115,14 +113,14 @@ export function startGame() {
             }
             renderArrow(
                 game.pieceIdToArrow.get(id),
-                pieceOfId(id),
+                game.pieceOfId(id),
                 mouseConstraint.mouse.position,
             );
         }
     });
 
     Events.on(mouseConstraint, "mousemove", () => {
-        const selectedPiece = pieceOfId(game.selectedPieceId);
+        const selectedPiece = game.pieceOfId(game.selectedPieceId);
         if (selectedPiece) {
             renderArrow(
                 game.pieceIdToArrow.get(game.selectedPieceId),
@@ -133,7 +131,7 @@ export function startGame() {
     });
 
     Events.on(mouseConstraint, "mouseup", () => {
-        const selectedPiece = pieceOfId(game.selectedPieceId);
+        const selectedPiece = game.pieceOfId(game.selectedPieceId);
         if (selectedPiece) {
             storeLaunchVec(
                 selectedPiece,
@@ -165,11 +163,6 @@ const notifyLaunch = () => {
     channel.push("notifyLaunch");
 };
 
-// returns the piece corresponding to the `id` parameter
-const pieceOfId = (id) => {
-    return game.idToPiece.get(id);
-};
-
 const launch = () => {
     destroySensors();
     destroyArrows(game, world);
@@ -179,7 +172,7 @@ const launch = () => {
     for (var [id, launchVec] of game.pieceIdToLaunchVec.entries()) {
         launchVec.x *= LAUNCH_MULT;
         launchVec.y *= LAUNCH_MULT;
-        Body.setVelocity(pieceOfId(id), launchVec);
+        Body.setVelocity(game.pieceOfId(id), launchVec);
     }
     // launch pieces simultaneously
     runner.enabled = true;
@@ -281,45 +274,6 @@ const renderArrow = (arrow, piece, mousePos) => {
         y: launchVec.y + piecePos.y,
     };
     Body.setPosition(arrow, arrowPos);
-};
-
-const createPieces = () => {
-    const pieces = [
-        createPiece(SCREEN_W / 4, SCREEN_H / 4, {
-            fillStyle: P_COLORS[0],
-        }),
-        createPiece(SCREEN_W / 4, (SCREEN_H * 3) / 4, {
-            fillStyle: P_COLORS[0],
-        }),
-        createPiece(SCREEN_W / 8, SCREEN_H / 2, {
-            fillStyle: P_COLORS[0],
-        }),
-        createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4, {
-            fillStyle: P_COLORS[1],
-        }),
-        createPiece((SCREEN_W * 3) / 4, (SCREEN_H * 3) / 4, {
-            fillStyle: P_COLORS[1],
-        }),
-        createPiece((SCREEN_W * 7) / 8, SCREEN_H / 2, {
-            fillStyle: P_COLORS[1],
-        }),
-    ];
-
-    for (const piece of pieces) {
-        game.idToPiece.set(piece.id, piece);
-    }
-};
-
-const createPiece = function (x, y, render = {}) {
-    const piece = Bodies.circle(x, y, PIECE_R, {
-        restitution: 0.5,
-        friction: 0,
-        frictionAir: 0.03,
-        frictionStatic: 0,
-        render: render,
-    });
-    Composite.add(world, piece);
-    return piece;
 };
 
 const assignPieces = function (game, playerId, players) {

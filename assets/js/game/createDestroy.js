@@ -14,7 +14,57 @@ var Engine = Matter.Engine,
     Bodies = Matter.Bodies,
     Events = Matter.Events;
 
-import { PIECE_R, P_MASK } from "./constants";
+import {
+    PIECE_R,
+    P_MASK,
+    SCREEN_H,
+    SCREEN_W,
+    P_COLORS,
+} from "./constants";
+
+export const createPieces = (game) => {
+    const pieces = [
+        createPiece(SCREEN_W / 4, SCREEN_H / 4, game.world, {
+            fillStyle: P_COLORS[0],
+        }),
+        createPiece(SCREEN_W / 4, (SCREEN_H * 3) / 4, game.world, {
+            fillStyle: P_COLORS[0],
+        }),
+        createPiece(SCREEN_W / 8, SCREEN_H / 2, game.world, {
+            fillStyle: P_COLORS[0],
+        }),
+        createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4, game.world, {
+            fillStyle: P_COLORS[1],
+        }),
+        createPiece(
+            (SCREEN_W * 3) / 4,
+            (SCREEN_H * 3) / 4,
+            game.world,
+            {
+                fillStyle: P_COLORS[1],
+            },
+        ),
+        createPiece((SCREEN_W * 7) / 8, SCREEN_H / 2, game.world, {
+            fillStyle: P_COLORS[1],
+        }),
+    ];
+
+    for (const piece of pieces) {
+        game.idToPiece.set(piece.id, piece);
+    }
+};
+
+const createPiece = function (x, y, world, render = {}) {
+    const piece = Bodies.circle(x, y, PIECE_R, {
+        restitution: 0.5,
+        friction: 0,
+        frictionAir: 0.03,
+        frictionStatic: 0,
+        render: render,
+    });
+    Composite.add(world, piece);
+    return piece;
+};
 
 export const createSensors = (game) => {
     for (const id of game.playerPieceIds) {
