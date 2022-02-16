@@ -4,15 +4,8 @@
 
 import Matter from "matter-js";
 // module aliases
-var Engine = Matter.Engine,
-    Render = Matter.Render,
-    Runner = Matter.Runner,
-    Composite = Matter.Composite,
-    MouseConstraint = Matter.MouseConstraint,
-    Mouse = Matter.Mouse,
-    Body = Matter.Body,
-    Bodies = Matter.Bodies,
-    Events = Matter.Events;
+var Composite = Matter.Composite,
+    Bodies = Matter.Bodies;
 
 import {
     PIECE_R,
@@ -99,6 +92,18 @@ const createSensor = function (piece, player, game) {
     return sensor;
 };
 
+export const destroySensors = (game) => {
+    for (const [
+        sensor,
+        _id, // eslint-disable-line no-unused-vars
+    ] of game.sensorToPieceId.entries()) {
+        destroy(game.world, sensor);
+    }
+
+    // prepare the game state to receive the sensors in the next round
+    game.sensorToPieceId = new Map();
+};
+
 export const createArrow = (mousePos, world) => {
     const arrow = Bodies.rectangle(mousePos.x, mousePos.y, 10, 10, {
         isSensor: true,
@@ -112,14 +117,18 @@ export const createArrow = (mousePos, world) => {
     return arrow;
 };
 
-export const destroyArrows = (game, world) => {
+export const destroyArrows = (game) => {
     for (const [
         _id, // eslint-disable-line no-unused-vars
         arrow,
     ] of game.pieceIdToArrow.entries()) {
-        Composite.remove(world, arrow);
+        destroy(game.world, arrow);
     }
 
     // prepare the game state to receive the sensors in the next round
     game.pieceIdToArrow = new Map();
+};
+
+export const destroy = (world, piece) => {
+    Composite.remove(world, piece);
 };

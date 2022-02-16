@@ -11,12 +11,16 @@ import {
     P_MASK,
     PLAYER_PIECES,
 } from "./constants.js";
+
 import { desArrAddToMap, serLaunchVec } from "./deserde.js";
+
 import {
     createArrow,
     destroyArrows,
     createSensors,
+    destroySensors,
     createPieces,
+    destroy,
 } from "./createDestroy.js";
 
 // module aliases
@@ -30,8 +34,10 @@ var Engine = Matter.Engine,
     Events = Matter.Events;
 
 class Game {
-    constructor(world) {
+    constructor(world, render, runner) {
         this.world = world;
+        this.render = render;
+        this.runner = runner;
         // 0 when no piece is selected
         this.selectedPieceId = 0;
         this.idToPiece = new Map();
@@ -48,11 +54,8 @@ class Game {
 }
 
 // create an engine with no gravity
-var engine = Engine.create(),
-    world = engine.world;
+var engine = Engine.create();
 engine.gravity.y = 0;
-
-var game = new Game(world);
 
 var render = Render.create({
     element: document.body,
@@ -66,15 +69,16 @@ var render = Render.create({
 
 // create runner
 var runner = Runner.create();
+var game = new Game(engine.world, render, runner);
 
 export function startGame() {
     createPieces(game);
 
     // run the renderer
-    Render.run(render);
+    Render.run(game.render);
 
     // run the engine
-    Runner.run(runner, engine);
+    Runner.run(game.runner, engine);
 
     // add mouse control
     var mouse = Mouse.create(render.canvas),
@@ -107,7 +111,7 @@ export function startGame() {
                     id,
                     createArrow(
                         mouseConstraint.mouse.position,
-                        world,
+                        game.world,
                     ),
                 );
             }
@@ -141,7 +145,7 @@ export function startGame() {
         game.selectedPieceId = 0;
     });
 
-    Composite.add(world, mouseConstraint);
+    Composite.add(game.world, mouseConstraint);
 
     channel.on("launchVecs", (payload) => {
         desArrAddToMap(game.pieceIdToLaunchVec, payload.body);
@@ -164,8 +168,8 @@ const notifyLaunch = () => {
 };
 
 const launch = () => {
-    destroySensors();
-    destroyArrows(game, world);
+    destroySensors(game);
+    destroyArrows(game);
 
     // stop runner so that all piece velocity vectors can be set.
     runner.enabled = false;
@@ -204,7 +208,7 @@ const outOfBoundsCheck = () => {
             } else {
                 game.playerPieceIds.delete(id);
             }
-            destroyPiece(piece);
+            destroy(piece);
         }
     }
 };
@@ -217,22 +221,6 @@ const outOfBounds = (piece) => {
         return true;
     }
     return false;
-};
-
-const destroyPiece = (piece) => {
-    Composite.remove(world, piece);
-};
-
-const destroySensors = () => {
-    for (const [
-        sensor,
-        _id, // eslint-disable-line no-unused-vars
-    ] of game.sensorToPieceId.entries()) {
-        Composite.remove(world, sensor);
-    }
-
-    // prepare the game state to receive the sensors in the next round
-    game.sensorToPieceId = new Map();
 };
 
 // piece is a `body`
