@@ -19,7 +19,7 @@ import { PIECE_R, P_MASK } from "./constants";
 export const createSensors = (game) => {
     for (const id of game.playerPieceIds) {
         const sensor = createSensor(
-            game.idToPiece.get(id),
+            game.pieceOfId(id),
             P_MASK,
             game,
         );
