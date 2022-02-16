@@ -1,32 +1,21 @@
 import Matter from "matter-js";
 
-import { channel } from "./user_socket.js";
+import { channel } from "../user_socket.js";
 
-const SCREEN_W = 800;
-const SCREEN_H = 600;
+import {
+    SCREEN_H,
+    SCREEN_W,
+    PIECE_R,
+    LAUNCH_MULT,
+    MAX_LAUNCH,
+    MAX_LAUNCH_SQUARED,
+    P_MASK,
+    PACKET_LENGTH,
+    PLAYER_PIECES,
+    P_COLORS,
+} from "./constants";
 
-const PIECE_R = 30;
-
-// determines the launch strength
-const LAUNCH_MULT = 0.075;
-// maximum magnitude of the launch velocity vector squared
-const MAX_LAUNCH = 150;
-const MAX_LAUNCH_SQUARED = MAX_LAUNCH * MAX_LAUNCH;
-
-// The value of the collision category and collision mask of player's mouse.
-const P1 = 0x0002;
-
-// The length of each grouping sent to server
-const PACKET_LENGTH = 3;
-
-const PLAYER_PIECES = 3;
-
-const P1_COLOR = "green";
-const P2_COLOR = "purple";
-
-const P_COLORS = [P1_COLOR, P2_COLOR];
-
-// set initialized when player joins lobby
+// set when player joins lobby
 let P_COLOR = "";
 
 // module aliases
@@ -43,7 +32,6 @@ var Engine = Matter.Engine,
 // TODO: refactor into an ECS where all pieces are held in one array, then the opponent and player pieces will be tracked through an index to the piece array.
 // TODO: make the piece into a class or object to implement the ECS system.
 
-// create the Game state
 var Game = {
     // 0 when no piece is selected
     selectedPieceId: 0,
@@ -93,8 +81,8 @@ export function startGame() {
                 },
             },
             collisionFilter: {
-                category: P1,
-                mask: P1,
+                category: P_MASK,
+                mask: P_MASK,
             },
         });
 
@@ -302,7 +290,7 @@ const destroySensors = () => {
 
 const createSensors = () => {
     for (const id of Game.playerPieceIds) {
-        const sensor = createSensor(pieceOfId(id), P1);
+        const sensor = createSensor(pieceOfId(id), P_MASK);
         Game.sensorToPieceId.set(sensor, id);
     }
 };

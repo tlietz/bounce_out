@@ -54,5 +54,5 @@ liveSocket.connect();
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket;
 
-import * as Game from "./game.js";
+import * as Game from "./game/game.js";
 Game.startGame();

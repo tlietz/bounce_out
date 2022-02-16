@@ -1,7 +1,7 @@
 // NOTE: The contents of this file will only be executed if
 // you uncomment its entry in "assets/js/app.js".
 
-import * as Game from "./game.js";
+import * as Game from "./game/game.js";
 
 // Bring in Phoenix channels client library:
 import { Socket } from "phoenix";
