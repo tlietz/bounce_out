@@ -47,6 +47,12 @@ class Game {
         this.pieceIdToLaunchVec = new Map();
         this.sensorToPieceId = new Map();
         this.pieceIdToArrow = new Map();
+
+        // run the renderer
+        Render.run(render);
+
+        // run the engine
+        Runner.run(runner, engine);
     }
 
     pieceOfId(id) {
@@ -74,12 +80,6 @@ var game = new Game(engine.world, render, runner, engine);
 
 export function startGame() {
     createPieces(game);
-
-    // run the renderer
-    Render.run(game.render);
-
-    // run the engine
-    Runner.run(game.runner, game.engine);
 
     // add mouse control
     var mouse = Mouse.create(render.canvas),
