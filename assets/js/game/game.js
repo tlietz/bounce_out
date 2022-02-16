@@ -14,9 +14,11 @@ import {
     P_COLORS,
 } from "./constants.js";
 import { desArrAddToMap, serLaunchVec } from "./deserde.js";
-
-// set when player joins lobby
-let P_COLOR = "";
+import {
+    createArrow,
+    destroyArrows,
+    createSensors,
+} from "./createDestroy.js";
 
 // module aliases
 var Engine = Matter.Engine,
@@ -47,6 +49,8 @@ var Game = {
 var engine = Engine.create(),
     world = engine.world;
 engine.gravity.y = 0;
+
+Game.world = world;
 
 var render = Render.create({
     element: document.body,
@@ -99,7 +103,10 @@ export function startGame() {
                 // create arrow
                 Game.pieceIdToArrow.set(
                     id,
-                    createArrow(mouseConstraint.mouse.position),
+                    createArrow(
+                        mouseConstraint.mouse.position,
+                        world,
+                    ),
                 );
             }
             renderArrow(
@@ -154,19 +161,6 @@ const notifyLaunch = () => {
     channel.push("notifyLaunch");
 };
 
-const createArrow = (mousePos) => {
-    const arrow = Bodies.rectangle(mousePos.x, mousePos.y, 10, 10, {
-        isSensor: true,
-        render: {
-            fillStyle: "red",
-        },
-    });
-
-    Composite.add(world, arrow);
-
-    return arrow;
-};
-
 // returns the piece corresponding to the `id` parameter
 const pieceOfId = (id) => {
     return Game.idToPiece.get(id);
@@ -174,7 +168,7 @@ const pieceOfId = (id) => {
 
 const launch = () => {
     destroySensors();
-    destroyArrows();
+    destroyArrows(Game, world);
 
     // stop runner so that all piece velocity vectors can be set.
     runner.enabled = false;
@@ -199,7 +193,7 @@ const sendLaunchVecs = () => {
 const simulate = () => {
     setTimeout(function () {
         outOfBoundsCheck();
-        createSensors();
+        createSensors(Game);
         console.log("sensors created");
     }, 5000);
 };
@@ -232,18 +226,6 @@ const destroyPiece = (piece) => {
     Composite.remove(world, piece);
 };
 
-const destroyArrows = () => {
-    for (const [
-        _id, // eslint-disable-line no-unused-vars
-        arrow,
-    ] of Game.pieceIdToArrow.entries()) {
-        Composite.remove(world, arrow);
-    }
-
-    // prepare the Game state to receive the sensors in the next round
-    Game.pieceIdToArrow = new Map();
-};
-
 const destroySensors = () => {
     for (const [
         sensor,
@@ -254,13 +236,6 @@ const destroySensors = () => {
 
     // prepare the Game state to receive the sensors in the next round
     Game.sensorToPieceId = new Map();
-};
-
-const createSensors = () => {
-    for (const id of Game.playerPieceIds) {
-        const sensor = createSensor(pieceOfId(id), P_MASK);
-        Game.sensorToPieceId.set(sensor, id);
-    }
 };
 
 // piece is a `body`
@@ -343,28 +318,6 @@ const createPiece = function (x, y, render = {}) {
     return piece;
 };
 
-const createSensor = function (piece, player) {
-    const position = piece.position;
-    const sensor = Bodies.circle(position.x, position.y, PIECE_R, {
-        isSensor: true,
-        isStatic: true,
-        collisionFilter: {
-            category: player,
-            mask: player,
-        },
-        render: {
-            fillStyle: P_COLOR,
-        },
-    });
-
-    // link the sensor to the id of its corresponding piece
-    Game.sensorToPieceId.set(sensor, piece.id);
-
-    Composite.add(world, sensor);
-
-    return sensor;
-};
-
 const assignPieces = function (Game, playerId, players) {
     let pieceIds = allPieceIdArr(players);
     Game.playerPieceIds = setPlayerPieces(playerId, pieceIds);
@@ -391,6 +344,5 @@ const allPieceIdArr = (players) => {
 
 export function playerSetup(playerId, players) {
     assignPieces(Game, playerId, players);
-    P_COLOR = P_COLORS[playerId - 1];
-    createSensors();
+    createSensors(Game);
 }

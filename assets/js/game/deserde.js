@@ -1,3 +1,7 @@
+/* 
+    Serialize and Deserialize packets to/from server
+*/
+
 import { PACKET_LENGTH } from "./constants";
 
 // Deserializes the array and adds the results to the map
