@@ -58,12 +58,17 @@ let socket = new Socket("/socket", {
 socket.connect();
 
 // Now that you are connected, you can join channels with a topic.
-export let channel = socket.channel("game:lobby", {});
+let channel = socket.channel("game:lobby", {});
 
 channel
     .join()
     .receive("ok", (resp) => {
-        Game.startGame(resp.playerId, resp.players, resp.gameState);
+        Game.startGame(
+            resp.playerId,
+            resp.players,
+            channel,
+            resp.gameState,
+        );
         console.log("Resp: ", resp);
     })
     .receive("error", (resp) => {

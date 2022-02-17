@@ -1,7 +1,5 @@
 import Matter from "matter-js";
 
-import { channel } from "../user_socket.js";
-
 import {
     SCREEN_H,
     SCREEN_W,
@@ -34,8 +32,9 @@ var Engine = Matter.Engine,
     Events = Matter.Events;
 
 class Game {
-    constructor(gameState = 0) {
+    constructor(channel, gameState = 0) {
         // create an engine with no gravity
+        this.channel = channel;
         var engine = Engine.create();
         engine.gravity.y = 0;
 
@@ -79,11 +78,34 @@ class Game {
 }
 
 // TODO: ability to define the starting state of a game
-export function startGame(playerId, players, gameState) {
-    var game = new Game(gameState);
+export function startGame(playerId, players, channel, gameState) {
+    var game = new Game(channel, gameState);
 
     initPieces(game, playerId, players);
 
+    initMouse(game);
+
+    initChannel(game);
+
+    document.body.onkeyup = function (e) {
+        if (e.key == " ") {
+            notifyLaunch(game);
+        }
+    };
+}
+
+const initChannel = (game) => {
+    game.channel.on("launchVecs", (payload) => {
+        desArrAddToMap(game.pieceIdToLaunchVec, payload.body);
+        launch(game);
+    });
+
+    game.channel.on("sendLaunchVecs", () => {
+        sendLaunchVecs(game);
+    });
+};
+
+const initMouse = (game) => {
     // add mouse control
     var mouse = Mouse.create(game.render.canvas),
         mouseConstraint = MouseConstraint.create(game.engine, {
@@ -151,22 +173,7 @@ export function startGame(playerId, players, gameState) {
     });
 
     Composite.add(game.world, mouseConstraint);
-
-    channel.on("launchVecs", (payload) => {
-        desArrAddToMap(game.pieceIdToLaunchVec, payload.body);
-        launch(game);
-    });
-
-    channel.on("sendLaunchVecs", () => {
-        sendLaunchVecs(game);
-    });
-
-    document.body.onkeyup = function (e) {
-        if (e.key == " ") {
-            notifyLaunch();
-        }
-    };
-}
+};
 
 const initPieces = function (game, playerId, players) {
     createPieces(game);
@@ -174,8 +181,8 @@ const initPieces = function (game, playerId, players) {
     createSensors(game);
 };
 
-const notifyLaunch = () => {
-    channel.push("notifyLaunch");
+const notifyLaunch = (game) => {
+    game.channel.push("notifyLaunch");
 };
 
 const launch = (game) => {
@@ -199,7 +206,7 @@ const launch = (game) => {
 const sendLaunchVecs = (game) => {
     // Transform the launch vec map into an array because it is compatible with the server.
     const launchVecArr = serLaunchVec(game.pieceIdToLaunchVec);
-    channel.push("sendLaunchVecs", { body: launchVecArr });
+    game.channel.push("sendLaunchVecs", { body: launchVecArr });
 };
 
 const simulate = (game) => {
