@@ -82,9 +82,7 @@ class Game {
 export function startGame(playerId, players, gameState) {
     var game = new Game(gameState);
 
-    createPieces(game);
-    assignPieces(game, playerId, players);
-    createSensors(game);
+    initPieces(game, playerId, players);
 
     // add mouse control
     var mouse = Mouse.create(game.render.canvas),
@@ -169,6 +167,12 @@ export function startGame(playerId, players, gameState) {
         }
     };
 }
+
+const initPieces = function (game, playerId, players) {
+    createPieces(game);
+    assignPieces(game, playerId, players);
+    createSensors(game);
+};
 
 const notifyLaunch = () => {
     channel.push("notifyLaunch");
