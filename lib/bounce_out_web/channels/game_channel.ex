@@ -25,7 +25,7 @@ defmodule BounceOutWeb.GameChannel do
   end
 
   def handle_in("sendLaunchVecs", payload, socket) do
-    broadcast_from!(socket, "launchVecs", payload)
+    broadcast(socket, "launchVecs", payload)
     {:noreply, socket}
   end
 
