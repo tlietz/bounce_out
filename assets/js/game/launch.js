@@ -91,7 +91,7 @@ const outOfBoundsCheck = (game) => {
             } else {
                 game.playerPieceIds.delete(id);
             }
-            destroy(piece);
+            destroy(game, piece);
         }
     }
 };

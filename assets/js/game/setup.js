@@ -9,14 +9,21 @@ var Composite = Matter.Composite,
     Body = Matter.Body,
     Events = Matter.Events;
 
-import { P_MASK, PLAYER_PIECES } from "./constants.js";
+import {
+    P_MASK,
+    PLAYER_PIECES,
+    SCREEN_W,
+    SCREEN_H,
+    PIECES_DEFAULT_INFO,
+    P_COLORS,
+} from "./constants.js";
 
 import { desArrAddToMap } from "./deserde.js";
 
 import {
     createArrow,
     createSensors,
-    createPieces,
+    createPiece,
 } from "./createDestroy.js";
 
 import {
@@ -68,8 +75,8 @@ export const initMouse = (game) => {
                 game.pieceIdToArrow.set(
                     id,
                     createArrow(
+                        game,
                         mouseConstraint.mouse.position,
-                        game.world,
                     ),
                 );
             }
@@ -148,4 +155,19 @@ const setPlayerPieces = (playerId, allPieceIdArr) => {
             PLAYER_PIECES,
         ),
     );
+};
+
+// `piecesInfo` is an object with the following fields:
+export const createPieces = (
+    game,
+    piecesInfo = PIECES_DEFAULT_INFO,
+) => {
+    for (const pieceInfo of piecesInfo) {
+        const piece = createPiece(
+            game,
+            pieceInfo.location,
+            pieceInfo.playerId,
+        );
+        game.idToPiece.set(piece.id, piece);
+    }
 };

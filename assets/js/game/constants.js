@@ -22,3 +22,24 @@ const P1_COLOR = "green";
 const P2_COLOR = "purple";
 
 export const P_COLORS = [P1_COLOR, P2_COLOR];
+
+export const PIECES_DEFAULT_INFO = [
+    { location: { x: SCREEN_W / 4, y: SCREEN_H / 4 }, playerId: 1 },
+    {
+        location: { x: SCREEN_W / 4, y: (SCREEN_H * 3) / 4 },
+        playerId: 1,
+    },
+    { location: { x: SCREEN_W / 8, y: SCREEN_H / 2 }, playerId: 1 },
+    {
+        location: { x: (SCREEN_W * 3) / 4, y: SCREEN_H / 4 },
+        playerId: 2,
+    },
+    {
+        location: { x: (SCREEN_W * 3) / 4, y: (SCREEN_H * 3) / 4 },
+        playerId: 2,
+    },
+    {
+        location: { x: (SCREEN_W * 7) / 8, y: SCREEN_H / 2 },
+        playerId: 2,
+    },
+];

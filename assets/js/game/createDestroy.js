@@ -7,60 +7,23 @@ import Matter from "matter-js";
 var Composite = Matter.Composite,
     Bodies = Matter.Bodies;
 
-import {
-    PIECE_R,
-    P_MASK,
-    SCREEN_H,
-    SCREEN_W,
-    P_COLORS,
-} from "./constants";
+import { PIECE_R, P_MASK, P_COLORS } from "./constants";
 
-export const createPieces = (game) => {
-    const pieces = [
-        createPiece(SCREEN_W / 4, SCREEN_H / 4, game.world, {
-            fillStyle: P_COLORS[0],
-        }),
-        createPiece(SCREEN_W / 4, (SCREEN_H * 3) / 4, game.world, {
-            fillStyle: P_COLORS[0],
-        }),
-        createPiece(SCREEN_W / 8, SCREEN_H / 2, game.world, {
-            fillStyle: P_COLORS[0],
-        }),
-        createPiece((SCREEN_W * 3) / 4, SCREEN_H / 4, game.world, {
-            fillStyle: P_COLORS[1],
-        }),
-        createPiece(
-            (SCREEN_W * 3) / 4,
-            (SCREEN_H * 3) / 4,
-            game.world,
-            {
-                fillStyle: P_COLORS[1],
-            },
-        ),
-        createPiece((SCREEN_W * 7) / 8, SCREEN_H / 2, game.world, {
-            fillStyle: P_COLORS[1],
-        }),
-    ];
-
-    for (const piece of pieces) {
-        game.idToPiece.set(piece.id, piece);
-    }
-};
-
-const createPiece = function (x, y, world, render = {}) {
-    const piece = Bodies.circle(x, y, PIECE_R, {
+export const createPiece = function (game, location, playerId) {
+    const piece = Bodies.circle(location.x, location.y, PIECE_R, {
         restitution: 0.5,
         friction: 0,
         frictionAir: 0.03,
         frictionStatic: 0,
-        render: render,
+        render: {
+            fillStyle: P_COLORS[playerId - 1],
+        },
     });
-    Composite.add(world, piece);
+    add(game, piece);
     return piece;
 };
 
-// Depends on pieces being assigned to their respective players.
-// When using to initialize a game, need to assign pieces in game state first.
+// Depends on pieces being assigned to their respective players first.
 export const createSensors = (game) => {
     for (const id of game.playerPieceIds) {
         const sensor = createSensor(
@@ -89,7 +52,7 @@ const createSensor = function (piece, player, game) {
     // link the sensor to the id of its corresponding piece
     game.sensorToPieceId.set(sensor, piece.id);
 
-    Composite.add(game.world, sensor);
+    add(game, sensor);
 
     return sensor;
 };
@@ -99,14 +62,14 @@ export const destroySensors = (game) => {
         sensor,
         _id, // eslint-disable-line no-unused-vars
     ] of game.sensorToPieceId.entries()) {
-        destroy(game.world, sensor);
+        destroy(game, sensor);
     }
 
     // prepare the game state to receive the sensors in the next round
     game.sensorToPieceId = new Map();
 };
 
-export const createArrow = (mousePos, world) => {
+export const createArrow = (game, mousePos) => {
     const arrow = Bodies.rectangle(mousePos.x, mousePos.y, 10, 10, {
         isSensor: true,
         render: {
@@ -114,7 +77,7 @@ export const createArrow = (mousePos, world) => {
         },
     });
 
-    Composite.add(world, arrow);
+    add(game, arrow);
 
     return arrow;
 };
@@ -124,13 +87,17 @@ export const destroyArrows = (game) => {
         _id, // eslint-disable-line no-unused-vars
         arrow,
     ] of game.pieceIdToArrow.entries()) {
-        destroy(game.world, arrow);
+        destroy(game, arrow);
     }
 
     // prepare the game state to receive the sensors in the next round
     game.pieceIdToArrow = new Map();
 };
 
-export const destroy = (world, piece) => {
-    Composite.remove(world, piece);
+export const destroy = (game, piece) => {
+    Composite.remove(game.world, piece);
+};
+
+const add = (game, piece) => {
+    Composite.add(game.world, piece);
 };
