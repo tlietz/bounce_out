@@ -1,3 +1,0 @@
-/*
-    Defines mouse and server events
-*/
