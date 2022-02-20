@@ -12,10 +12,7 @@ var Composite = Matter.Composite,
 import {
     P_MASK,
     PLAYER_PIECES,
-    SCREEN_W,
-    SCREEN_H,
     PIECES_DEFAULT_INFO,
-    P_COLORS,
 } from "./constants.js";
 
 import { desArrAddToMap } from "./deserde.js";
