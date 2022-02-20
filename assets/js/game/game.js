@@ -52,6 +52,10 @@ class Game {
     pieceOfId(id) {
         return this.idToPiece.get(id);
     }
+
+    pieces() {
+        return Array.from(this.idToPiece.values());
+    }
 }
 
 // TODO: ability to define the starting state of a game

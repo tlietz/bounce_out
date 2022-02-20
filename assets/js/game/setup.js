@@ -155,6 +155,8 @@ const setPlayerPieces = (playerId, allPieceIdArr) => {
 };
 
 // `piecesInfo` is an object with the following fields:
+// location: {x: int, y:}
+// playere
 export const createPieces = (
     game,
     piecesInfo = PIECES_DEFAULT_INFO,

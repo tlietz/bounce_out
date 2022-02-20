@@ -76,10 +76,21 @@ export const sendLaunchVecs = (game) => {
 
 const simulate = (game) => {
     setTimeout(function () {
+        roundPiecePositions(game);
         outOfBoundsCheck(game);
         createSensors(game);
         console.log("sensors created");
     }, 5000);
+};
+
+// easier to keep track of game state on server when piece positions are integers
+const roundPiecePositions = (game) => {
+    for (const piece of game.pieces()) {
+        Body.setPosition(piece, {
+            x: Math.round(piece.position.x),
+            y: Math.round(piece.position.y),
+        });
+    }
 };
 
 const outOfBoundsCheck = (game) => {
