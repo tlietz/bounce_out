@@ -68,6 +68,7 @@ export function startGame(playerId, players, channel, gameState) {
 
     initChannel(game);
 
+    // temporary, will be an event from server in the future
     document.body.onkeyup = function (e) {
         if (e.key == " ") {
             notifyLaunch(game);
