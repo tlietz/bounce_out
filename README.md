@@ -68,12 +68,13 @@ The current plan to assign which pieces each client owns is the following:
 3. Every time a person joins the lobby, `player` is incremented and sent to the client that joined until the maximum number of players for that lobby is reached.
 4. Clients take the array `[1, 2, 3]`, then add `3 * player` to each index to get an array of the ids of the pieces that they own.
 
-## TODO
+## Initializing State of Game
 
-- [ ] Javascript client
-- [ ] Elixir server
-- [ ] Database that stores games
-- [ ] Allow players to create account
-- [ ] Allow players to save favorite color as skin
-- [ ] Add CI/CL pipelines
-- [ ] md book
+To initialize the starting state of the game when a new game is created,
+or when a client refreshes their browser, the server needs to send this
+information to the client upon connecting:
+
+- The playerId of the client (sent as an integer `playerId`)
+- The location of each piece and the player that it belongs to (sent as a map, `pieceLocs` with key of int, `playerId`, to an array of piece locations)
+
+With this information from the server, the client reconstructs the state of the game by iterating through `pieceLocs` map and creating the corresponding pieces. The colors that correspond to each player are stored in the client.

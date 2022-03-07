@@ -19,7 +19,7 @@ export const desArrAddToMap = (map, arr) => {
 // where `x` is the x component and `y` is the y component of the launch vector of
 // of the corresponding piece.
 export const serLaunchVec = (pieceIdToLaunchVec) => {
-    // make an array with enough room to serialize the launch vector map.
+    // make an array with size required to serialize the launch vector map.
     let launchVecArr = Array(
         PACKET_LENGTH * pieceIdToLaunchVec.size,
     );
