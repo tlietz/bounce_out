@@ -75,6 +75,6 @@ or when a client refreshes their browser, the server needs to send this
 information to the client upon connecting:
 
 - The playerId of the client (sent as an integer `playerId`)
-- The location of each piece and the player that it belongs to (sent as a map, `pieceLocs` with key of int, `playerId`, to an array of piece locations)
+- The location of each piece and the player that it belongs to (sent as a map, `piece_positions` with key of int, `playerId`, to a list of `position` tuples)
 
-With this information from the server, the client reconstructs the state of the game by iterating through `pieceLocs` map and creating the corresponding pieces. The colors that correspond to each player are stored in the client.
+With this information from the server, the client reconstructs the state of the game by iterating through `piece_positions` map and creating the corresponding pieces. The colors that correspond to each player are stored in the client.

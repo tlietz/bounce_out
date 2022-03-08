@@ -16,6 +16,7 @@ export const P_MASK = 0x0002;
 // The length of each grouping sent to server
 export const PACKET_LENGTH = 3;
 
+// The amount of pieces players start off with
 export const PLAYER_PIECES = 3;
 
 const P1_COLOR = "green";
