@@ -59,7 +59,7 @@ Plan 2:
     2. The pieces are launched
 6. Once pieces have stopped moving, return to step `3`
 
-## Assigning Pieces Owned by each Client
+## Assigning Pieces Owned by each Client at Start of Game
 
 The first plan to assign which pieces each client owns was the following:
 
@@ -68,7 +68,7 @@ The first plan to assign which pieces each client owns was the following:
 3. Every time a person joins the lobby, `player` is incremented and sent to the client that joined until the maximum number of players for that lobby is reached.
 4. Clients take the array `[1, 2, 3]`, then add `3 * player` to each index to get an array of the ids of the pieces that they own.
 
-At the start of the game the server creates a map, `pieces`,
+At the start of the game, the server creates a map, `pieces`,
 that has keys of `piece_id` to values of a tuple created with `player_id` and `piece_position`
 
 ## Initializing Client's Game State Upon Reconnecting
@@ -85,7 +85,7 @@ creating the corresponding pieces while keeping track of the newly created `piec
 
 After all pieces are created, each client sends the server what each
 local `pieceId` maps to the server's `piece_id`. This is needed because the game may have less pieces in its
-current state than what it started with, therefore, `pieceId`s that the server has would not match up with those that were newly created.
+current state than what it started with, therefore, `pieceId`s that server has would not match up with those that were newly created.
 
 The piece colors that correspond to each player are stored in the client.
 
