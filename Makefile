@@ -1,4 +1,3 @@
-
 server:
 	mix phx.server
 

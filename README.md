@@ -34,6 +34,8 @@ With this system, none of the simulation code has to be run on the server. This 
 
 ## Implementing the launch mechanism
 
+Two different algorithms were considered when implementing the launch mechanism. In the app, the algorithm outlined in `plan 2` was used because it had the least amount of things to change and keep track of each round of gameplay.
+
 Plan 1:
 
 1. Pieces are assigned `collisionFilters` that correspond to the player that controls while still allowing all pieces to collide with each other.
@@ -57,24 +59,36 @@ Plan 2:
     2. The pieces are launched
 6. Once pieces have stopped moving, return to step `3`
 
-In the app, the algorithm outlined in `plan 2` was used because it had the least amount of things to change and keep track of each round.
-
 ## Assigning Pieces Owned by each Client
 
-The current plan to assign which pieces each client owns is the following:
+The first plan to assign which pieces each client owns was the following:
 
 1. A game lobby is created with a set maximum number of players.
 2. The server sends a `player` integer, starting at `0` to the person that creates the lobby.  
 3. Every time a person joins the lobby, `player` is incremented and sent to the client that joined until the maximum number of players for that lobby is reached.
 4. Clients take the array `[1, 2, 3]`, then add `3 * player` to each index to get an array of the ids of the pieces that they own.
 
-## Initializing State of Game
+At the start of the game the server creates a map, `pieces`,
+that has keys of `piece_id` to values of a tuple created with `player_id` and `piece_position`
 
-To initialize the starting state of the game when a new game is created,
-or when a client refreshes their browser, the server needs to send this
-information to the client upon connecting:
+## Initializing Client's Game State Upon Reconnecting
+
+To initialize the state of the game when a client reconnects after
+temporarily disconnecting, the server needs to send this information to the client that reconnects:
 
 - The playerId of the client (sent as an integer `playerId`)
-- The location of each piece and the player that it belongs to (sent as a map, `piece_positions` with key of int, `playerId`, to a list of `position` tuples)
+- The server's `pieces` map (keys of `piece_id` to values of a tuple: `player_id`, `piece_position`)
 
-With this information from the server, the client reconstructs the state of the game by iterating through `piece_positions` map and creating the corresponding pieces. The colors that correspond to each player are stored in the client.
+With this information from the server, the client reconstructs the
+state of the game by iterating through the `pieces` map and
+creating the corresponding pieces while keeping track of the newly created `pieceId`s.
+
+After all pieces are created, each client sends the server what each
+local `pieceId` maps to the server's `piece_id`. This is needed because the game may have less pieces in its
+current state than what it started with, therefore, `pieceId`s that the server has would not match up with those that were newly created.
+
+The piece colors that correspond to each player are stored in the client.
+
+## Remembering the player id of a client after disconnecting
+
+When a client recconnects to the server after temporarily disconnecting, the server needs to send the correct `playerId` to that client. This is how the server does that.
