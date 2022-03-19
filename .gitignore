@@ -35,3 +35,5 @@ npm-debug.log
 *.beam
 /config/*.secret.exs
 /.elixir_ls
+
+.DS_Store
