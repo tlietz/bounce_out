@@ -1,21 +1,13 @@
-# Slideball
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+                    Version 2, December 2004
 
-[insert gif of demo here]
+ Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
 
-A multiplayer, turn-based demo that showcases how a Javascript client and an Elixir server can share code.
-The code that simulates the physics of the sliding balls is written
-in Rust and is shared between the client and server.
+ Everyone is permitted to copy and distribute verbatim or modified
+ copies of this license document, and changing it is allowed as long
+ as the name is changed.
 
-This can be helpful when creating web games because it saves the time of having to rewrite the simulation code in two different languages.
-Additionally, there is consistency between the client and server calculations.
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
-The client and server communicate with websockets. A Postgres database is used to
-save the color of ball that an authorized user selects. Whenever that player signs in again, their ball will start as the color of their choice.
-
-## TODO
-
-- [ ] Javascript client
-- [ ] Elixir server
-- [ ] Add CI/CL pipelines
-- [ ] Database
-- [ ] md book
+  0. You just DO WHAT THE FUCK YOU WANT TO.

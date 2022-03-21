@@ -91,4 +91,4 @@ The piece colors that correspond to each player are stored in the client.
 
 ## Remembering the player id of a client after disconnecting
 
-When a client recconnects to the server after temporarily disconnecting, the server needs to send the correct `playerId` to that client. This is how the server does that.
+When a client reconnects to the server after temporarily disconnecting, the server needs to send the correct `playerId` to that client. This is how the server does that.
