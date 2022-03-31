@@ -15,7 +15,7 @@ defmodule BounceOut.Impl.Game do
     max_players: 2,
     game_state: :initializing,
     # a map with key of playerId, and value of piece position {x, y}
-    piece_positionr: %{}
+    piece_positions: %{}
   )
 
   @spec new_game() :: t

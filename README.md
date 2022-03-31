@@ -1,27 +1,27 @@
 # Bounce Out
 
-[insert gif of demo here]
-
-[insert images to make terminology such as `launch vector`, and `piece` clear]
+![bounce out gif](media/bounce_out_first_gameplay.gif)
 
 A multiplayer, synchronous turn-based game with a Javascript client and an Elixir server.
 The code that simulates the physics of the sliding balls is done on the client.
 The server takes care of validating player inputs, game lobby creation, and management of games.
 
-The client and server communicate with websockets. A Postgres database is used to temporarioly store games that were played in the event that a player is reported for cheating, in which case the game data would be analyzed to determine if cheating occured.
+The goal of this project is to create a minimalistic web game that uses only the Matterjs library on the frontend, with an Elixir backend.
+
+The client and server communicate with websockets. A Postgres database is used to store games that were played so that users can replay them.
 
 ## Client and Server Interaction
 
 A good way to see how the client and server interact is by going through a couple rounds of a game:
 
 1. Server starts the game with multiple clients and information on the starting location of their balls.
-2. The clients choose launch vectors for each of their balls.
-3. The client caps the launch vectors to a pre-determined maximum magnitude in case a client tried to cheat by value that was too big.
-4. The clients send their vectors and ball locations to the server.
-5. The server sends out all vectors of the client's opponent to each client ,with the current location of the balls that the server has.
-6. The clients use the launch vectors and ball locations from the server to animate the game state updating.
+2. Clients choose launch vectors for each of their balls.
+3. Each client caps the launch vectors to a pre-determined maximum magnitude in case a client tried to cheat by value that was too big.
+4. Clients send their vectors and ball locations to the server.
+5. Server sends out all vectors of the client's opponent to each client ,with the current location of the balls that the server has.
+6. Clients use the launch vectors and ball locations from the server to animate the game state updating.
    This way, if a bad actor tried changing the local location of the balls before the simulation occurs, it will have no effect.
-7. Immediately after the animation is finished, clients send the updated location of their balls to the server.
+7. Immediately after the animation is finished, clients sejknd the updated location of their balls to the server.
 8. The server updates the position of the balls in its state.
 9. If all of the balls of a client have fallen off, that client loses. A game can result in a draw.
    If no client has lost, return to step `2`.
