@@ -4,7 +4,7 @@
 
 A multiplayer, synchronous turn-based game with a Javascript client and an Elixir server.
 The code that simulates the physics of the sliding balls is done on the client.
-The server takes care of validating player inputs, game lobby creation, and management of games.
+The server takes care of validating player inputs.
 
 The goal of this project is to create a minimalistic web game that uses only the Matterjs library on the frontend, with an Elixir backend.
 
