@@ -8,7 +8,7 @@ The server takes care of validating player inputs.
 
 The goal of this project is to create a minimalistic web game that uses only the Matterjs library on the frontend, with an Elixir backend.
 
-The client and server communicate with websockets. A Postgres database is used to store games that were played so that users can replay them.
+The client and server communicate with websockets. 
 
 ## Client and Server Interaction
 
